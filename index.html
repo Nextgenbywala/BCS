@@ -6402,8 +6402,27 @@
 
     function renderAddShareModalOptions() {
       const select = document.getElementById('add-s-member');
-      select.innerHTML = '<option value="">-- સભ્ય પસંદ કરો --</option>' + 
-        members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+      if (select) {
+        select.innerHTML = '<option value="">-- સભ્ય પસંદ કરો --</option>' + 
+          members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+      }
+      updateAddSharePaymentLabels();
+    }
+
+    function updateAddMemberSharePaymentLabels() {
+      const shareVal = getCurrentShareValue();
+      const select = document.getElementById('add-m-share-payment');
+      if (select && select.options.length > 0) {
+        select.options[0].textContent = `ચૂકવેલ - ₹${shareVal.toLocaleString('en-IN')} પ્રતિ શેર હમણાં જમા કરો (Paid Now - Add to Balance)`;
+      }
+    }
+
+    function updateAddSharePaymentLabels() {
+      const shareVal = getCurrentShareValue();
+      const select = document.getElementById('add-s-payment');
+      if (select && select.options.length > 0) {
+        select.options[0].textContent = `ચૂકવેલ - ₹${shareVal.toLocaleString('en-IN')} હમણાં જમા કરો (Paid Now - Add to Balance)`;
+      }
     }
 
     // --- LOAN DISBURSEMENT TYPE & CATEGORY CONTROLLER ---
@@ -6505,12 +6524,11 @@
       const shareSelectEl = document.getElementById('disburse-share-select');
       const selectedShareId = shareSelectEl ? shareSelectEl.value : 'all';
 
-      // Logic: if main member (all) selected -> total share limit (e.g. 2 shares * 25,000 = ₹50,000)
-      // If individual share person selected -> ONE share amount limit (1 share * 25,000 = ₹25,000)!
       const isSingleShare = selectedShareId !== 'all';
       const chosenShare = isSingleShare ? mShares.find(s => s.id === selectedShareId) : null;
       const countForLimit = isSingleShare ? 1 : mShares.length;
-      const regLimit = countForLimit * 25000;
+      const curLoanLimit = getCurrentLoanLimitPerShare();
+      const regLimit = countForLimit * curLoanLimit;
 
       if (currentDisburseType === 'special') {
         let specLimit = 500000;
@@ -6531,8 +6549,8 @@
       } else {
         if (limitLblEl) {
           limitLblEl.textContent = isSingleShare 
-            ? `ભલામણ કરેલ સુરક્ષિત લિમિટ (૧ શેર × ₹25,000 [${chosenShare ? chosenShare.nameOnShare : ''}]):`
-            : `ભલામણ કરેલ સુરક્ષિત લિમિટ (કુલ ${mShares.length} શેર × ₹25,000):`;
+            ? `ભલામણ કરેલ સુરક્ષિત લિમિટ (૧ શેર × ₹${curLoanLimit.toLocaleString('en-IN')} [${chosenShare ? chosenShare.nameOnShare : ''}]):`
+            : `ભલામણ કરેલ સુરક્ષિત લિમિટ (કુલ ${mShares.length} શેર × ₹${curLoanLimit.toLocaleString('en-IN')}):`;
         }
         limitValEl.textContent = `₹${regLimit.toLocaleString('en-IN')}`;
         limitValEl.style.color = '#2563eb';
@@ -6586,6 +6604,7 @@
       const selectedShareId = shareSelectEl ? shareSelectEl.value : 'all';
       const isSingleShare = selectedShareId !== 'all';
       const chosenShare = isSingleShare ? mShares.find(s => s.id === selectedShareId) : null;
+      const curShareValue = getCurrentShareValue();
 
       // Statistics display
       const sharesCntEl = document.getElementById('disburse-shares-cnt');
@@ -6593,12 +6612,12 @@
       
       if (isSingleShare && chosenShare) {
         if (sharesCntEl) sharesCntEl.textContent = `૧ શેર [શેર: ${chosenShare.shareNumber} - ${chosenShare.nameOnShare}]`;
-        if (sharesValEl) sharesValEl.textContent = `₹20,000 (૧ શેર મૂડી ગેરંટી)`;
+        if (sharesValEl) sharesValEl.textContent = `₹${curShareValue.toLocaleString('en-IN')} (૧ શેર મૂડી ગેરંટી)`;
         if (purposeInput && (!purposeInput.value || purposeInput.value === 'સામાન્ય લોન' || purposeInput.value.startsWith('સામાન્ય લોન (Regular Loan)'))) {
           purposeInput.value = `સામાન્ય લોન (${chosenShare.nameOnShare})`;
         }
       } else {
-        const shareVal = mShares.length * 20000;
+        const shareVal = mShares.length * curShareValue;
         if (sharesCntEl) sharesCntEl.textContent = `${mShares.length} શેર (સંયુક્ત તમામ શેર)`;
         if (sharesValEl) sharesValEl.textContent = `₹${shareVal.toLocaleString('en-IN')}`;
       }
@@ -6768,8 +6787,9 @@
       });
 
       if (isPaid) {
-        // Add transaction to main balance: ₹20,000 per share
-        const totalShareCost = certInputs.length * 20000;
+        // Add transaction to main balance: getCurrentShareValue() per share
+        const shareVal = getCurrentShareValue();
+        const totalShareCost = certInputs.length * shareVal;
         const payMode = document.getElementById('add-m-payment-mode').value;
         transactions.push({
           id: `t-${Date.now()}-share-init`,
@@ -6784,7 +6804,8 @@
 
       saveToLocalStorage();
       if (isPaid) {
-        alert(`સભ્ય સફળતાપૂર્વક ઉમેરાયા અને કુલ શેર ચૂકવણી રકમ ₹${(certInputs.length * 20000).toLocaleString()} મુખ્ય સિલકમાં જમા થઈ!`);
+        const shareVal = getCurrentShareValue();
+        alert(`સભ્ય સફળતાપૂર્વક ઉમેરાયા અને કુલ શેર ચૂકવણી રકમ ₹${(certInputs.length * shareVal).toLocaleString('en-IN')} મુખ્ય સિલકમાં જમા થઈ!`);
       } else {
         alert('સભ્ય સફળતાપૂર્વક ઉમેરાયા! શેર ચૂકવણી બાકી હોવાથી શેર પેન્ડિંગ રહેશે.');
       }
@@ -6828,13 +6849,14 @@
       });
 
       if (isPaid) {
+        const shareVal = getCurrentShareValue();
         const payMode = document.getElementById('add-s-payment-mode').value;
-        // Add ₹20,000 transaction to main balance
+        // Add transaction to main balance according to current share value
         transactions.push({
           id: `t-${Date.now()}-share-buy`,
           date: new Date().toISOString().split('T')[0],
           type: 'other_income',
-          amount: 20000,
+          amount: shareVal,
           memberName: m.name,
           paymentMode: payMode,
           description: `નવો શેર પ્રમાણપત્ર ${newShareNum} ખરીદી ચૂકવણી જમા`
@@ -6843,7 +6865,8 @@
 
       saveToLocalStorage();
       if (isPaid) {
-        alert(`નવો શેર પ્રમાણપત્ર ${newShareNum} સફળતાપૂર્વક ખરીદ્યો અને ₹૨૦,૦૦૦ મુખ્ય સિલકમાં જમા થયા!`);
+        const shareVal = getCurrentShareValue();
+        alert(`નવો શેર પ્રમાણપત્ર ${newShareNum} સફળતાપૂર્વક ખરીદ્યો અને ₹${shareVal.toLocaleString('en-IN')} મુખ્ય સિલકમાં જમા થયા!`);
       } else {
         alert(`નવો શેર પ્રમાણપત્ર ${newShareNum} સફળતાપૂર્વક નોંધાયો! ચૂકવણી બાકી હોવાથી શેર પેન્ડિંગ રહેશે.`);
       }
@@ -7830,9 +7853,12 @@
     document.getElementById('btn-open-member-modal').addEventListener('click', () => {
       shareInputs = [''];
       renderShareFields();
+      updateAddMemberSharePaymentLabels();
       openModal('modal-add-member');
     });
     document.getElementById('btn-open-share-modal').addEventListener('click', () => {
+      renderAddShareModalOptions();
+      updateAddSharePaymentLabels();
       openModal('modal-add-share');
     });
     document.getElementById('btn-open-disburse-modal').addEventListener('click', () => {
