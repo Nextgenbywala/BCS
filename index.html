@@ -2037,7 +2037,7 @@
             <label class="form-label" style="font-size: 11px; font-weight: 700; color: #1e3a8a;">
               ૧. શેરદીઠ મૂડી કિંમત / Share Nominal Value (₹) *
             </label>
-            <input type="number" id="input-edit-share-val" class="form-input" required min="1000" step="500" placeholder="20000" style="font-size: 15px; font-weight: bold; color: #1e40af;">
+            <input type="number" id="input-edit-share-val" class="form-input" required min="1" step="any" placeholder="20000" style="font-size: 15px; font-weight: bold; color: #1e40af;">
             <p style="font-size: 9px; color: #64748b; margin-top: 3px;">સભ્ય નોંધણી વખતે ૧ શેરની મૂડી કિંમત (મૂળભૂત ₹૨૦,૦૦૦).</p>
           </div>
 
@@ -2045,7 +2045,7 @@
             <label class="form-label" style="font-size: 11px; font-weight: 700; color: #047857;">
               ૨. માસિક બચત ફાળો પ્રતિ શેર / Monthly Savings Per Share (₹) *
             </label>
-            <input type="number" id="input-edit-monthly-savings" class="form-input" required min="10" step="10" placeholder="50" style="font-size: 15px; font-weight: bold; color: #059669;">
+            <input type="number" id="input-edit-monthly-savings" class="form-input" required min="1" step="any" placeholder="50" style="font-size: 15px; font-weight: bold; color: #059669;">
             <p style="font-size: 9px; color: #64748b; margin-top: 3px;">ચોપડા (Ledger) અને માસિક હપ્તા વખતે ઓટો-ગણતરી થતી બચત (મૂળભૂત ₹૫૦ પ્રતિ શેર).</p>
           </div>
 
@@ -2053,7 +2053,7 @@
             <label class="form-label" style="font-size: 11px; font-weight: 700; color: #c2410c;">
               ૩. સામાન્ય લોન મર્યાદા પ્રતિ શેર / Regular Loan Limit Per Share (₹) *
             </label>
-            <input type="number" id="input-edit-loan-limit" class="form-input" required min="1000" step="1000" placeholder="25000" style="font-size: 15px; font-weight: bold; color: #c2410c;">
+            <input type="number" id="input-edit-loan-limit" class="form-input" required min="1" step="any" placeholder="25000" style="font-size: 15px; font-weight: bold; color: #c2410c;">
             <p style="font-size: 9px; color: #64748b; margin-top: 3px;">નવી લોન આપતી વખતે ૧ શેરદીઠ મહત્તમ લોન પાત્રતા (મૂળભૂત ₹૨૫,૦૦૦ પ્રતિ શેર).</p>
           </div>
 
@@ -7898,8 +7898,9 @@
         catSelect.innerHTML = `
           <option value="loan_repayment" selected>લોન EMI હપ્તો (Loan EMI Repayment)</option>
           <option value="savings">માસિક બચત ફાળો (Savings Deposit)</option>
-          <option value="donation">દાન / અન્ય આવક (Donation / Other Income)</option>
+          <option value="donation">દાન સ્વીકાર (Donation Income)</option>
           <option value="bank_interest">બેંક વ્યાજ (Bank Interest)</option>
+          <option value="other_general_income">અન્ય આવક / શરૂઆતની સિલક (Other Income / Initial System Balance)</option>
         `;
       } else {
         catSelect.innerHTML = `
@@ -8042,6 +8043,10 @@
         amountLabel.textContent = 'જમા કરવાની બેંક વ્યાજ રકમ (₹) * [Interest Amount]';
         document.getElementById('unified-amount-input').placeholder = 'દા.ત. 350';
         handleBankInterestChange();
+      } else if (category === 'other_general_income') {
+        memberGroup.classList.add('hidden');
+        amountLabel.textContent = 'આવક / શરૂઆતની સિલક રકમ (₹) * [Income / Initial System Balance]';
+        document.getElementById('unified-amount-input').placeholder = 'દા.ત. 10000';
       } else {
         // Expense types: annual_dinner, stationary, other_expense
         memberGroup.classList.add('hidden'); // No member selection needed for general expenses
@@ -8264,6 +8269,23 @@
           });
 
           alert(`${bankName} માં ફક્ત ₹${amount.toLocaleString('en-IN')} વ્યાજ રકમ સફળતાપૂર્વક જમા થઈ ગઈ છે!`);
+        } else if (category === 'other_general_income') {
+          if (amount <= 0) {
+            alert('કૃપા કરીને માન્ય રકમ દાખલ કરો!');
+            return;
+          }
+
+          transactions.push({
+            id: `t-${Date.now()}-uother`,
+            date,
+            type: 'other_income',
+            amount: amount,
+            memberName: 'સોસાયટી સામાન્ય આવક/સિલક',
+            paymentMode: finalPaymentMode,
+            description: `અન્ય આવક / શરૂઆતની સિલક જમા ${notes ? `| નોંધ: ${notes}` : ''}`
+          });
+
+          alert(`₹${amount.toLocaleString('en-IN')} અન્ય આવક / શરૂઆતની સિલક સફળતાપૂર્વક સિસ્ટમમાં જમા થઈ ગઈ!`);
         }
       } else {
         // Expense categories: annual_dinner, stationary, other_expense
