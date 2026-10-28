@@ -1789,10 +1789,10 @@
           <div class="form-group" style="margin-top: 10px;">
             <label class="form-label">શેર ચૂકવણી બેંક / પદ્ધતિ (Payment Bank / Mode) *</label>
             <select id="add-m-payment-mode" class="form-select" required>
-              <option value="Bank 1" selected>BOI (Bank of India)</option>
-              <option value="Bank 2">BOB (A/c 60149)</option>
-              <option value="Bank 3">BOB (A/c 00839)</option>
-              <option value="રોકડ">રોકડ (Cash - BOI)</option>
+              <option value="Bank 1" selected>BOI (Bank 1)</option>
+              <option value="Bank 2">BOB A/c 60149 (Bank 2)</option>
+              <option value="Bank 3">BOB A/c 00839 (Bank 3)</option>
+              <option value="રોકડ">રોકડ (Cash)</option>
             </select>
           </div>
 
@@ -1816,19 +1816,28 @@
         <form id="form-add-share" class="space-y-3">
           <div class="form-group">
             <label class="form-label">કયા સભ્ય માટે નવો શેર ખરીદવો છે? *</label>
-            <select id="add-s-member" class="form-select" required>
+            <select id="add-s-member" class="form-select" required onchange="renderBuyShareFields()">
               <!-- Options loaded dynamically -->
             </select>
           </div>
-          <div class="form-group">
-            <label class="form-label">શેર હોલ્ડરનું નામ (Name on Share Certificate)</label>
-            <input type="text" id="add-s-certname" class="form-input" placeholder="દા.ત. કુટુંબના સભ્યનું નામ (ખાલી મૂકતા સભ્યનું નામ ગણાશે)">
+
+          <div style="border-top: 1px solid #f3f4f6; padding-top: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span class="form-label" style="margin: 0;">ખરીદવાના શેર વિગત</span>
+              <button type="button" id="btn-add-buy-share-field" style="background: none; border: none; color: #dc2626; font-size: 10px; font-weight: bold; cursor: pointer;">+ બીજો શેર ઉમેરો</button>
+            </div>
+            <div id="buy-shares-list" class="space-y-2" style="max-height: 120px; overflow-y: auto;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 9px; font-weight: bold; color: #8c847e; background-color: #f2ebe9; padding: 4px 6px; border-radius: 4px;">શેર ૧</span>
+                <input type="text" class="form-input buy-share-cert-name" placeholder="શેર હોલ્ડર નામ (ખાલી મૂકતા સભ્યનું નામ ગણાશે)" style="margin-bottom: 0;">
+              </div>
+            </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" style="margin-top: 10px;">
             <label class="form-label">શેર ચૂકવણી સ્ટેટસ (Share Payment Status) *</label>
             <select id="add-s-payment" class="form-select" required>
-              <option value="paid_now" selected>ચૂકવેલ - ₹૨૦,૦૦૦ હમણાં જમા કરો (Paid Now - Add to Balance)</option>
+              <option value="paid_now" selected>ચૂકવેલ - ₹૨૦,૦૦૦ પ્રતિ શેર હમણાં જમા કરો (Paid Now - Add to Balance)</option>
               <option value="pay_later">બાકી - પછીથી ચૂકવશે (Pay Later - Share is Pending)</option>
             </select>
           </div>
@@ -1836,10 +1845,10 @@
           <div class="form-group" style="margin-top: 10px;">
             <label class="form-label">શેર ચૂકવણી બેંક / પદ્ધતિ (Payment Bank / Mode) *</label>
             <select id="add-s-payment-mode" class="form-select" required>
-              <option value="Bank 1" selected>BOI (Bank of India)</option>
-              <option value="Bank 2">BOB (A/c 60149)</option>
-              <option value="Bank 3">BOB (A/c 00839)</option>
-              <option value="રોકડ">રોકડ (Cash - BOI)</option>
+              <option value="Bank 1" selected>BOI (Bank 1)</option>
+              <option value="Bank 2">BOB A/c 60149 (Bank 2)</option>
+              <option value="Bank 3">BOB A/c 00839 (Bank 3)</option>
+              <option value="રોકડ">રોકડ (Cash)</option>
             </select>
           </div>
 
@@ -2004,9 +2013,9 @@
           <div class="form-group" style="margin-top: 10px;">
             <label class="form-label">લોન ચૂકવણી બેંક (Disbursement Bank Account) *</label>
             <select id="disburse-payment-mode" class="form-select" required onchange="window.updateDisburseBankDisplay()">
-              <option value="Bank 1" selected>BOI (Bank of India)</option>
-              <option value="Bank 2">BOB (A/c 60149)</option>
-              <option value="Bank 3">BOB (A/c 00839)</option>
+              <option value="Bank 1" selected>BOI (Bank 1)</option>
+              <option value="Bank 2">BOB A/c 60149 (Bank 2)</option>
+              <option value="Bank 3">BOB A/c 00839 (Bank 3)</option>
             </select>
           </div>
 
@@ -2134,9 +2143,10 @@
           <div class="form-group" style="margin-top: 10px;">
             <label class="form-label">જમા લેનાર બેંક ખાતું (Bank Account) *</label>
             <select id="repay-payment-mode" class="form-select" required>
-              <option value="ઓનલાઈન (Bank 1)" selected>BOI (Bank of India)</option>
-              <option value="ઓનલાઈન (Bank 2)">BOB (A/c 60149)</option>
-              <option value="ઓનલાઈન (Bank 3)">BOB (A/c 00839)</option>
+              <option value="Bank 1" selected>BOI (Bank 1)</option>
+              <option value="Bank 2">BOB A/c 60149 (Bank 2)</option>
+              <option value="Bank 3">BOB A/c 00839 (Bank 3)</option>
+              <option value="રોકડ">રોકડ (Cash)</option>
             </select>
           </div>
 
@@ -2246,9 +2256,9 @@
           <div class="form-group" id="edit-log-bank-group">
             <label class="form-label">બેંક ખાતું / ચુકવણી પદ્ધતિ</label>
             <select id="edit-log-bank" class="form-select">
-              <option value="BOI (Bank of India)">BOI (Bank of India)</option>
-              <option value="BOB (A/c 60149)">BOB (A/c 60149)</option>
-              <option value="BOB (A/c 00839)">BOB (A/c 00839)</option>
+              <option value="Bank 1">BOI (Bank 1)</option>
+              <option value="Bank 2">BOB A/c 60149 (Bank 2)</option>
+              <option value="Bank 3">BOB A/c 00839 (Bank 3)</option>
               <option value="રોકડ">રોકડ (Cash)</option>
             </select>
           </div>
@@ -2287,6 +2297,7 @@
     let adminPassword = 'admin@123';
     let expandedMemberIds = {};
     let shareInputs = [''];
+    let buyShareInputs = [''];
 
     window.toggleMemberExpand = function(memberId) {
       expandedMemberIds[memberId] = !expandedMemberIds[memberId];
@@ -2310,6 +2321,33 @@
       renderShareFields();
     };
 
+    window.renderBuyShareFields = function() {
+      const container = document.getElementById('buy-shares-list');
+      if (!container) return;
+      const select = document.getElementById('add-s-member');
+      const selectedMemberId = select ? select.value : '';
+      const selectedMember = members.find(m => m.id === selectedMemberId);
+      const mExistingSharesCount = selectedMember ? shares.filter(s => s.memberId === selectedMember.id).length : 0;
+
+      container.innerHTML = buyShareInputs.map((val, idx) => {
+        const defaultPlaceholder = selectedMember 
+          ? `${selectedMember.name} (શેર ${mExistingSharesCount + idx + 1})`
+          : 'શેર હોલ્ડર નામ (ખાલી મૂકતા સભ્યનું નામ ગણાશે)';
+        return `
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 9px; font-weight: bold; color: #8c847e; background-color: #f2ebe9; padding: 4px 6px; border-radius: 4px;">શેર ${idx + 1}</span>
+          <input type="text" class="form-input buy-share-cert-name" value="${val}" oninput="buyShareInputs[${idx}] = this.value" placeholder="${defaultPlaceholder}" style="margin-bottom: 0;">
+          ${idx > 0 ? `<button type="button" onclick="removeBuyShareField(${idx})" style="background: none; border: none; color: #8c584a; font-size: 12px; font-weight: bold; cursor: pointer; padding: 0 4px;">✕</button>` : ''}
+        </div>
+      `;
+      }).join('');
+    };
+
+    window.removeBuyShareField = function(idx) {
+      buyShareInputs.splice(idx, 1);
+      renderBuyShareFields();
+    };
+
     window.payPendingShare = function(shareId) {
       const sh = shares.find(s => s.id === shareId);
       if (!sh) return;
@@ -2329,7 +2367,7 @@
         type: 'other_income',
         amount: curShareVal,
         memberName: m.name,
-        paymentMode: 'ઓનલાઈન (Bank 1)',
+        paymentMode: 'Bank 1',
         description: `બાકી શેર પ્રમાણપત્ર ${sh.shareNumber} ની ચૂકવણી જમા`
       });
       
@@ -2338,8 +2376,6 @@
       alert(`શેર ${sh.shareNumber} માટે ₹${curShareVal.toLocaleString('en-IN')} ની ચૂકવણી સફળતાપૂર્વક જમા થઈ અને શેર સક્રિય થયો!`);
     };
 
-
-
     // Add dynamic share fields initializer and Pull-to-Refresh after DOM loads
     document.addEventListener('DOMContentLoaded', () => {
       const btnAddShare = document.getElementById('btn-add-share-field');
@@ -2347,6 +2383,14 @@
         btnAddShare.addEventListener('click', () => {
           shareInputs.push('');
           renderShareFields();
+        });
+      }
+
+      const btnAddBuyShare = document.getElementById('btn-add-buy-share-field');
+      if (btnAddBuyShare) {
+        btnAddBuyShare.addEventListener('click', () => {
+          buyShareInputs.push('');
+          renderBuyShareFields();
         });
       }
 
@@ -2530,6 +2574,16 @@
       alert(`સોસાયટી નાણાકીય નિયમો સફળતાપૂર્વક અપડેટ થયા!\n\n• શેર મૂડી: ₹${val.toLocaleString('en-IN')}\n• માસિક બચત: ₹${sav.toLocaleString('en-IN')} / શેર\n• શેરદીઠ લોન લિમિટ: ₹${lim.toLocaleString('en-IN')}`);
     };
 
+    function normalizeBankName(mode) {
+      if (!mode) return 'Bank 1';
+      const m = String(mode).toLowerCase();
+      if (m.includes('bank 3') || m.includes('00839')) return 'Bank 3';
+      if (m.includes('bank 2') || m.includes('60149')) return 'Bank 2';
+      if (m.includes('bank 1') || m.includes('boi')) return 'Bank 1';
+      if (m.includes('રોકડ') || m.includes('cash')) return 'રોકડ';
+      return mode;
+    }
+
     // Load initial clean database (0 demo data, strictly clean slate with independent key safety)
     function initDatabase() {
       // Clear legacy storage keys
@@ -2627,6 +2681,7 @@
       transactions.forEach(t => {
         t.date = normalizeDateStr(t.date) || new Date().toISOString().split('T')[0];
         t.amount = Number(t.amount) || 0;
+        if (t.paymentMode) t.paymentMode = normalizeBankName(t.paymentMode);
       });
 
       // Preserve admin password from storage if set
@@ -2636,6 +2691,15 @@
       }
 
       syncUsersWithMembers();
+
+      // AUTO-LOAD FROM GOOGLE SHEETS IF LOCAL STORAGE IS EMPTY (New Browser Session / Profile)
+      if (members.length === 0 && shares.length === 0 && getActiveSheetUrl()) {
+        setTimeout(() => {
+          if (typeof window.fetchFromGoogleSheet === 'function') {
+            window.fetchFromGoogleSheet(true);
+          }
+        }, 300);
+      }
     }
 
     function syncUsersWithMembers() {
@@ -2773,6 +2837,12 @@
       const url = getActiveSheetUrl();
       if (!url) {
         updateSyncStatusUI('idle', 'ગૂગલ શીટ URL કોડમાં આપેલ નથી (લોકલ મોડ)');
+        return;
+      }
+
+      // Safeguard: Prevent accidental background overwrite of Google Sheets if local state is completely empty
+      if (!force && members.length === 0 && shares.length === 0 && loans.length === 0 && transactions.length === 0) {
+        updateSyncStatusUI('idle', 'ઓટો-સિન્ક સ્થાપિત (લોકલ ડેટા ખાલી છે)');
         return;
       }
 
@@ -4920,7 +4990,7 @@
                           <span style="font-weight: 700; color: #2563eb;">${sh.shareNumber}</span>
                           <span style="color: #383644;">${sh.nameOnShare}</span>
                           ${isActive ? `
-                            <span style="color: #059669; font-weight: 600; background-color: rgba(5, 150, 105, 0.08); padding: 2px 6px; border-radius: 6px; font-size: 9px;">સક્રિય (₹20,000 મૂલ્ય)</span>
+                            <span style="color: #059669; font-weight: 600; background-color: rgba(5, 150, 105, 0.08); padding: 2px 6px; border-radius: 6px; font-size: 9px;">સક્રિય (₹${curShareVal.toLocaleString('en-IN')} મૂલ્ય)</span>
                           ` : `
                             <div style="display: flex; align-items: center; gap: 6px;">
                               <span style="color: #d97706; font-weight: 600; background-color: rgba(217, 119, 6, 0.08); padding: 2px 6px; border-radius: 6px; font-size: 9px;">ચૂકવણી બાકી</span>
@@ -5727,11 +5797,63 @@
                 તારીખ: ${new Date(t.date).toLocaleDateString('gu-IN')}
               </p>
             </div>
-            <strong style="color: ${color}; font-size: 13px;">${sign}₹${t.amount.toLocaleString()}</strong>
+            <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+              <strong style="color: ${color}; font-size: 13px;">${sign}₹${t.amount.toLocaleString('en-IN')}</strong>
+              ${currentAuthUser && currentAuthUser.role === 'admin' ? `
+                <button onclick="window.deleteTransaction('${t.id}')" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; font-size: 8.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" title="ટ્રાન્ઝેક્શન ડિલીટ કરો">
+                  🗑️ ડિલીટ
+                </button>
+              ` : ''}
+            </div>
           </div>
         `;
       }).join('');
     }
+
+    window.deleteTransaction = function(txId) {
+      if (!currentAuthUser || currentAuthUser.role !== 'admin') {
+        alert('ફક્ત એડમિન જ ટ્રાન્ઝેક્શન ડિલીટ કરી શકે છે!');
+        return;
+      }
+
+      const txIndex = transactions.findIndex(t => t.id === txId);
+      if (txIndex === -1) return;
+
+      const targetTx = transactions[txIndex];
+      if (!confirm(`શું તમે ખરેખર આ ટ્રાન્ઝેક્શન (${targetTx.memberName} - ₹${targetTx.amount.toLocaleString('en-IN')}) ડિલીટ કરવા માંગો છો?\n\nઆનાથી લોકલ સ્ટોરેજ, બેંક બેલેન્સ અને તમામ હિસાબ ઓટોમેટિક અપડેટ થઈ જશે.`)) {
+        return;
+      }
+
+      // Extract share number from description if this was a share buy transaction
+      const shareMatch = (targetTx.description || '').match(/S-\d+/i);
+      if (shareMatch) {
+        const targetShareNum = shareMatch[0].toUpperCase();
+        // Remove the corresponding share certificate from shares array
+        shares = shares.filter(s => s.shareNumber !== targetShareNum);
+      }
+
+      // Remove from transactions array
+      transactions.splice(txIndex, 1);
+
+      // If this was a loan repayment, recalculate the loan balance & status cleanly
+      if (targetTx.loanId || targetTx.type === 'loan_repayment') {
+        const loanId = targetTx.loanId;
+        if (loanId) {
+          const targetLoan = loans.find(l => l.id === loanId);
+          if (targetLoan) {
+            const remainingRepayments = transactions.filter(t => t.loanId === loanId && t.type === 'loan_repayment');
+            const totalPrincipalRepaid = remainingRepayments.reduce((sum, t) => sum + (t.principalAmount || t.amount || 0), 0);
+            targetLoan.currentBalance = Math.max(0, targetLoan.principalAmount - totalPrincipalRepaid);
+            targetLoan.status = targetLoan.currentBalance === 0 ? 'repaid' : 'active';
+          }
+        }
+      }
+
+      // Save changes to localStorage, sessionStorage, and trigger Google Sheets sync
+      saveToLocalStorage();
+      renderAllViews();
+      alert('ટ્રાન્ઝેક્શન અને સંકળાયેલ શેર વિગતો સફળતાપૂર્વક ડિલીટ થઈ ગઈ છે અને સિસ્ટમ બેલેન્સ સુધારી દેવાયું છે!');
+    };
 
     // Loans Book Screen
     window.handleLoansFilterPresetChange = function() {
@@ -6401,10 +6523,21 @@
     }
 
     function renderAddShareModalOptions() {
+      buyShareInputs = [''];
+      renderBuyShareFields();
       const select = document.getElementById('add-s-member');
       if (select) {
+        const seen = new Set();
+        const uniqueMembers = members.filter(m => {
+          if (!m || !m.id || seen.has(m.id)) return false;
+          seen.add(m.id);
+          return m.status === 'active';
+        });
+
         select.innerHTML = '<option value="">-- સભ્ય પસંદ કરો --</option>' + 
-          members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+          uniqueMembers.map(m => {
+            return `<option value="${m.id}">${m.name}</option>`;
+          }).join('');
       }
       updateAddSharePaymentLabels();
     }
@@ -6770,7 +6903,7 @@
       // Retrieve share input elements names
       const certInputs = document.querySelectorAll('.share-cert-name');
       const maxShareNum = shares.reduce((max, s) => {
-        const num = parseInt(s.shareNumber.replace('S-', '')) || 1000;
+        const num = parseInt(s.shareNumber ? s.shareNumber.replace(/\D/g, '') : '1000') || 1000;
         return num > max ? num : max;
       }, 1000);
 
@@ -6790,7 +6923,8 @@
         // Add transaction to main balance: getCurrentShareValue() per share
         const shareVal = getCurrentShareValue();
         const totalShareCost = certInputs.length * shareVal;
-        const payMode = document.getElementById('add-m-payment-mode').value;
+        const rawPayMode = document.getElementById('add-m-payment-mode').value;
+        const payMode = normalizeBankName(rawPayMode);
         transactions.push({
           id: `t-${Date.now()}-share-init`,
           date: new Date().toISOString().split('T')[0],
@@ -6821,56 +6955,90 @@
     document.getElementById('form-add-share').addEventListener('submit', (e) => {
       e.preventDefault();
       const memberId = document.getElementById('add-s-member').value;
-      const certname = document.getElementById('add-s-certname').value.trim();
       const payStatus = document.getElementById('add-s-payment').value;
       const isPaid = payStatus === 'paid_now';
 
       if (!memberId) {
-        alert('સભ્ય પસંદ કરો!');
+        alert('કૃપા કરીને સભ્ય પસંદ કરો!');
         return;
       }
 
       const m = members.find(mem => mem.id === memberId);
-      const finalName = certname || m.name;
+      const mExistingShares = shares.filter(s => s.memberId === memberId);
+
+      const certInputs = document.querySelectorAll('.buy-share-cert-name');
+      const count = certInputs.length > 0 ? certInputs.length : 1;
 
       const maxShareNum = shares.reduce((max, s) => {
-        const num = parseInt(s.shareNumber.replace('S-', '')) || 1000;
+        const num = parseInt(s.shareNumber ? s.shareNumber.replace(/\D/g, '') : '1000') || 1000;
         return num > max ? num : max;
       }, 1000);
 
-      const newShareNum = `S-${maxShareNum + 1}`;
-      shares.push({
-        id: `s-${Date.now()}`,
-        memberId,
-        shareNumber: newShareNum,
-        nameOnShare: finalName,
-        activationDate: new Date().toISOString().split('T')[0],
-        status: isPaid ? 'active' : 'pending'
+      const createdShareNumbers = [];
+
+      let lastInsertIndex = -1;
+      for (let i = shares.length - 1; i >= 0; i--) {
+        if (shares[i].memberId === memberId) {
+          lastInsertIndex = i;
+          break;
+        }
+      }
+
+      certInputs.forEach((input, idx) => {
+        const nextShareIndex = mExistingShares.length + idx + 1;
+        const inputVal = input ? input.value.trim() : '';
+        const finalName = inputVal || `${m.name} (શેર ${nextShareIndex})`;
+        const newShareNum = `S-${maxShareNum + idx + 1}`;
+        createdShareNumbers.push(newShareNum);
+
+        const newShareObj = {
+          id: `s-${Date.now()}-${idx}`,
+          memberId,
+          shareNumber: newShareNum,
+          nameOnShare: finalName,
+          activationDate: new Date().toISOString().split('T')[0],
+          status: isPaid ? 'active' : 'pending'
+        };
+
+        if (lastInsertIndex !== -1) {
+          shares.splice(lastInsertIndex + 1, 0, newShareObj);
+          lastInsertIndex++;
+        } else {
+          shares.push(newShareObj);
+        }
       });
 
       if (isPaid) {
         const shareVal = getCurrentShareValue();
-        const payMode = document.getElementById('add-s-payment-mode').value;
-        // Add transaction to main balance according to current share value
+        const totalAmount = count * shareVal;
+        const rawPayMode = document.getElementById('add-s-payment-mode').value;
+        const payMode = normalizeBankName(rawPayMode);
+
         transactions.push({
           id: `t-${Date.now()}-share-buy`,
           date: new Date().toISOString().split('T')[0],
           type: 'other_income',
-          amount: shareVal,
+          amount: totalAmount,
           memberName: m.name,
           paymentMode: payMode,
-          description: `નવો શેર પ્રમાણપત્ર ${newShareNum} ખરીદી ચૂકવણી જમા`
+          description: count > 1 
+            ? `નવા ${count} શેર ખરીદી ચૂકવણી જમા (${m.name})`
+            : `નવો શેર પ્રમાણપત્ર ${createdShareNumbers[0]} ખરીદી ચૂકવણી જમા`
         });
       }
 
       saveToLocalStorage();
+      const shareVal = getCurrentShareValue();
+      const totalAmount = count * shareVal;
       if (isPaid) {
-        const shareVal = getCurrentShareValue();
-        alert(`નવો શેર પ્રમાણપત્ર ${newShareNum} સફળતાપૂર્વક ખરીદ્યો અને ₹${shareVal.toLocaleString('en-IN')} મુખ્ય સિલકમાં જમા થયા!`);
+        alert(`કુલ ${count} નવા શેર (${createdShareNumbers.join(', ')}) સફળતાપૂર્વક ખરીદ્યા અને ₹${totalAmount.toLocaleString('en-IN')} મુખ્ય સિલકમાં જમા થયા!`);
       } else {
-        alert(`નવો શેર પ્રમાણપત્ર ${newShareNum} સફળતાપૂર્વક નોંધાયો! ચૂકવણી બાકી હોવાથી શેર પેન્ડિંગ રહેશે.`);
+        alert(`કુલ ${count} નવા શેર (${createdShareNumbers.join(', ')}) સફળતાપૂર્વક નોંધાયા! ચૂકવણી બાકી હોવાથી શેર પેન્ડિંગ રહેશે.`);
       }
+
       document.getElementById('form-add-share').reset();
+      buyShareInputs = [''];
+      renderBuyShareFields();
       closeModal('modal-add-share');
       renderAllViews();
     });
