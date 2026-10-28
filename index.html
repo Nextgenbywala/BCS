@@ -1149,7 +1149,7 @@
         <div id="members-list-container" class="space-y-4">
           <!-- Search & Actions -->
           <div class="card space-y-3">
-            <input type="text" id="member-search" class="form-input" placeholder="સભ્યનું નામ, ફોન અથવા નોમિની શોધો...">
+            <input type="text" id="member-search" class="form-input" placeholder="સભ્યનું નામ, ફોન અથવા નોમિની શોધો..." oninput="renderMembers()">
             
             <div style="display: flex; gap: 8px;">
               <button id="btn-open-share-modal" class="btn btn-secondary" style="flex: 1;">+ સભ્ય માટે નવો શેર ઉમેરો</button>
@@ -1245,10 +1245,11 @@
             <select id="tx-type-select" class="form-select">
               <option value="all">તમામ પ્રકારના વ્યવહારો (All Transactions)</option>
               <option value="savings">માસિક બચત જમા (Savings)</option>
+              <option value="share_capital">શેર મૂડી જમા (Share Capital)</option>
               <option value="loan_disbursal">નવી લોન આપેલ (Disbursals)</option>
               <option value="loan_repayment">લોન હપ્તા જમા (Repayments)</option>
               <option value="interest_payment">વ્યાજ જમા (Interest)</option>
-              <option value="other_income">ટ્રસ્ટ ભંડોળ જમા (Capital In)</option>
+              <option value="other_income">ટ્રસ્ટ દાન / અન્ય ભંડોળ (Donation / Misc)</option>
               <option value="other_expense">ખર્ચ વિગત (Expenses Out)</option>
             </select>
           </div>
@@ -4275,7 +4276,9 @@
       renderMembers();
     });
 
-    // Yearly savings search & year filter listeners
+    // Member search, Yearly savings search & year filter listeners
+    const memberSearchInput = document.getElementById('member-search');
+    if (memberSearchInput) memberSearchInput.addEventListener('input', renderMembers);
     document.getElementById('yearly-savings-search').addEventListener('input', renderMembers);
     document.getElementById('yearly-savings-year-select').addEventListener('change', renderMembers);
 
@@ -4342,7 +4345,7 @@
       transactions.forEach(t => {
         const amtP = toPaise(t.amount || 0);
         const type = t.type;
-        const isIncome = (type === 'savings' || type === 'loan_repayment' || type === 'interest_payment' || type === 'other_income');
+        const isIncome = (type === 'savings' || type === 'loan_repayment' || type === 'interest_payment' || type === 'other_income' || type === 'share_capital');
         const isExpense = (type === 'loan_disbursal' || type === 'other_expense');
         const mode = (t.paymentMode || '').toLowerCase();
         
@@ -4693,12 +4696,13 @@
             loan_disbursal: isGuj ? 'લોન ચુકવણી' : 'Loan Disbursed',
             loan_repayment: isGuj ? 'લોન પરત' : 'Loan Repayment',
             interest_payment: isGuj ? 'વ્યાજ જમા' : 'Interest Paid',
-            other_income: isGuj ? 'ટ્રસ્ટ ભંડોળ' : 'Trust Fund',
+            other_income: isGuj ? 'ટ્રસ્ટ ભંડોળ / દાન' : 'Trust Fund / Donation',
             other_expense: isGuj ? 'મંડળી ખર્ચ' : 'Society Expense',
+            share_capital: isGuj ? 'શેર મૂડી જમા' : 'Share Capital Deposit',
           };
 
           passbookEl.innerHTML = txList.map(t => {
-            const isCredit = (t.type === 'savings' || t.type === 'loan_repayment' || t.type === 'interest_payment' || t.type === 'other_income');
+            const isCredit = (t.type === 'savings' || t.type === 'loan_repayment' || t.type === 'interest_payment' || t.type === 'other_income' || t.type === 'share_capital');
             const color = isCredit ? '#059669' : '#dc2626';
             const sign = isCredit ? '+' : '-';
 
@@ -4787,7 +4791,7 @@
       const totalInterestCollected = Math.max(allTxInterest, allEntriesInterest, allLoansInterest);
 
       const totalDonations = transactions
-        .filter(t => t.type === 'other_income')
+        .filter(t => t.type === 'other_income' && !t.id.includes('share') && !(t.description || '').includes('શેર'))
         .reduce((sum, t) => sum + t.amount, 0);
 
       const totalExpenses = transactions
@@ -5779,8 +5783,9 @@
           loan_disbursal: 'લોન ચુકવણી',
           loan_repayment: 'લોન પરત',
           interest_payment: 'વ્યાજ જમા',
-          other_income: 'ટ્રસ્ટ ભંડોળ',
+          other_income: 'ટ્રસ્ટ ભંડોળ / દાન',
           other_expense: 'મંડળી ખર્ચ',
+          share_capital: 'શેર મૂડી જમા',
         };
 
         return `
@@ -6928,7 +6933,7 @@
         transactions.push({
           id: `t-${Date.now()}-share-init`,
           date: new Date().toISOString().split('T')[0],
-          type: 'other_income',
+          type: 'share_capital',
           amount: totalShareCost,
           memberName: name,
           paymentMode: payMode,
@@ -7017,7 +7022,7 @@
         transactions.push({
           id: `t-${Date.now()}-share-buy`,
           date: new Date().toISOString().split('T')[0],
-          type: 'other_income',
+          type: 'share_capital',
           amount: totalAmount,
           memberName: m.name,
           paymentMode: payMode,
