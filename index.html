@@ -3894,15 +3894,9 @@
       // AUTHORITATIVE SOURCE: Only use Transactions for loan simulation to avoid double counting.
       const rawPayments = [];
       transactions.forEach(t => {
-        // STRICT MATCHING: Only include transactions belonging to THIS loan or THIS member.
-        // We avoid matching by Name string to prevent collisions between different people with same name.
         const isMatch = (t.loanId === loan.id) || (t.memberId === loan.memberId && (!t.loanId || t.loanId === loan.id));
-        
-        // Legacy fallback: Check description for Loan ID if missing from properties
         const descMatch = (t.description || '').includes(`#${loan.id}`);
-        
         if ((t.type === 'loan_repayment' || t.type === 'interest_payment') && (isMatch || descMatch)) {
-          
           let mCode = normalizeMonthCode(t.date);
           const match = (t.description || '').match(/\d{4}-\d{2}/);
           if (match) mCode = match[0];
@@ -3916,20 +3910,19 @@
         }
       });
 
-      // Sort all payments by date
       rawPayments.sort((a, b) => (a.date > b.date ? 1 : (a.date < b.date ? -1 : 0)));
 
-      // Step 2: Chronological Simulation
       let runningBalancePaise = toPaise(loan.principalAmount || 0);
       let interestDebtPaise = 0;
       let totalInterestPaidPaise = 0;
       let paidEmiLog = [];
       
-      let disYear = 2026, disMonth = 1;
+      let disYear = 2026, disMonth = 1, disDay = 1;
       if (loan.disburseDate) {
         const parts = normalizeDateStr(loan.disburseDate).split('-');
         disYear = parseInt(parts[0]);
         disMonth = parseInt(parts[1]);
+        disDay = parseInt(parts[2]) || 1;
       }
       
       let iterDate = new Date(disYear, disMonth - 1, 1);
@@ -3940,38 +3933,54 @@
       let unpaidMonths = 0;
       let isThisMonthEmiPaid = false;
       let thisMonthInterestPaidPaise = 0;
+      let nextMonthInterestEarnedPaise = 0;
+      let deferredInterestEarnedPaise = 0;
 
       let safety = 0;
       while (iterDate <= targetDate && safety < 240) {
         safety++;
+        const year = iterDate.getFullYear();
+        const month = iterDate.getMonth() + 1;
         const mCode = normalizeMonthCode(iterDate);
-        
-        // 1. Interest accrues at the start of the month
-        const monthlyInterestPaise = rate > 0 ? Math.round(runningBalancePaise * (rate / 100)) : 0;
-        interestDebtPaise += monthlyInterestPaise;
-        
-        if (mCode === effectiveMonthCode) {
-          monthlyInterestAtTargetPaise = monthlyInterestPaise;
+        const daysInMonth = new Date(year, month, 0).getDate();
+
+        // 1. Calculate interest earned in THIS month on current reducing principal
+        let monthInterestEarnedPaise = 0;
+        if (rate > 0 && runningBalancePaise > 0) {
+          if (year === disYear && month === disMonth) {
+            const accruedDays = daysInMonth - disDay + 1;
+            const dailyRate = (runningBalancePaise * (rate / 100)) / daysInMonth;
+            monthInterestEarnedPaise = Math.round(dailyRate * accruedDays);
+          } else {
+            monthInterestEarnedPaise = Math.round(runningBalancePaise * (rate / 100));
+          }
         }
 
-        // 2. Process payments made in THIS month (logical allocation)
+        // 2. Due Rule: Interest earned in previous month becomes due at start of this month
+        if (deferredInterestEarnedPaise > 0) {
+          interestDebtPaise += deferredInterestEarnedPaise;
+        }
+        deferredInterestEarnedPaise = monthInterestEarnedPaise;
+
+        if (mCode === effectiveMonthCode) {
+          monthlyInterestAtTargetPaise = monthInterestEarnedPaise;
+        }
+
+        // 3. Process payments made in THIS month
         const currentMonthPayments = rawPayments.filter(p => normalizeMonthCode(p.date) === mCode);
-        
-        // Logical Grouping: Group multiple payments on the same day into one log entry
         const dailyGroups = {};
         currentMonthPayments.forEach(p => {
           if (!dailyGroups[p.date]) dailyGroups[p.date] = 0;
           dailyGroups[p.date] += p.amountPaise;
         });
 
-        // Apply grouped payments chronologically
         Object.keys(dailyGroups).sort().forEach(date => {
           const totalPaidPaise = dailyGroups[date];
           const toInterestPaise = Math.min(totalPaidPaise, interestDebtPaise);
           const toPrincipalPaise = totalPaidPaise - toInterestPaise;
           
           interestDebtPaise -= toInterestPaise;
-          runningBalancePaise -= toPrincipalPaise;
+          runningBalancePaise = Math.max(0, runningBalancePaise - toPrincipalPaise);
           totalInterestPaidPaise += toInterestPaise;
 
           if (mCode === effectiveMonthCode) {
@@ -3991,25 +4000,19 @@
 
         if (mCode === effectiveMonthCode) {
           isThisMonthEmiPaid = thisMonthInterestPaidPaise >= monthlyInterestAtTargetPaise;
-        } else if (iterDate < targetDate) {
-          // Check if previous months fully paid their interest
-          let monthInterestPaid = 0;
-          currentMonthPayments.forEach(p => {
-             // In simulation, we need to track if THIS SPECIFIC MONTH'S debt was cleared
-             // but interestDebtPaise is a rolling pool. This logic is correct for "Reducing Balance".
-          });
-          if (interestDebtPaise > 0) {
-            unpaidMonths++;
-          }
+        } else if (iterDate < targetDate && interestDebtPaise > 0) {
+          unpaidMonths++;
         }
 
         iterDate.setMonth(iterDate.getMonth() + 1);
       }
 
+      nextMonthInterestEarnedPaise = (rate > 0 && runningBalancePaise > 0) ? Math.round(runningBalancePaise * (rate / 100)) : 0;
+
       return {
         monthlyInterest: fromPaise(monthlyInterestAtTargetPaise),
         thisMonthInterestPaid: fromPaise(thisMonthInterestPaidPaise),
-        nextMonthInterest: rate > 0 ? fromPaise(Math.round(runningBalancePaise * (rate / 100))) : 0,
+        nextMonthInterest: fromPaise(nextMonthInterestEarnedPaise),
         pendingInterest: fromPaise(interestDebtPaise),
         unpaidMonths,
         isThisMonthEmiPaid,
