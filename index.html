@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
   <title>BCS મોબાઇલ એપ - બલાઢા ક્રેડિટ સોસાયટી</title>
   <style>
     :root {
+      color-scheme: light;
       --bg-page: #f8fafc;
       --bg-app: #f8fafc;
       --bg-card: #ffffff;
@@ -29,6 +31,16 @@
       --indigo: #4338ca;
       --indigo-bg: #eef2ff;
       --indigo-border: #e0e7ff;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        color-scheme: light;
+      }
+      html, body {
+        background-color: #f8fafc !important;
+        color: #1e293b !important;
+      }
     }
 
     /* Reset & Base styling */
