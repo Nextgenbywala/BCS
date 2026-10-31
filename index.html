@@ -2267,6 +2267,7 @@
 
           <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #f3f4f6; padding-top: 12px; margin-top: 12px;">
             <button type="button" class="btn btn-secondary" style="width: auto; padding: 8px 16px;" onclick="closeModal('modal-repay')">રદ કરો</button>
+            <button type="button" class="btn btn-danger" style="width: auto; padding: 8px 24px; background: #dc2626;" onclick="window.initiateFullSettlement()">પૂર્ણ સેટલમેન્ટ</button>
             <button type="submit" class="btn btn-dark" style="width: auto; padding: 8px 24px;">જમા કરો</button>
           </div>
         </form>
@@ -4333,6 +4334,48 @@
       openModal('modal-repay');
     };
 
+    window.initiateFullSettlement = function() {
+      const loanId = document.getElementById('repay-loan-select').value;
+      if (!loanId) { alert('કૃપા કરીને લોન ખાતું પસંદ કરો.'); return; }
+      const loan = loans.find(l => l.id === loanId);
+      if (!loan) return;
+      
+      const m = members.find(mem => mem.id === loan.memberId);
+      const intSched = calculateLoanInterestSchedule(loan, m ? m.name : '');
+      const totalToPay = toPaise(intSched.totalDueWithInterest || 0);
+
+      if (confirm(`શું તમે લોન #${loan.id} નું પૂર્ણ સેટલમેન્ટ (₹${fromPaise(totalToPay)}) કરવા માંગો છો? આનાથી લોન બંધ થઈ જશે.`)) {
+        window.executeFullSettlement(loan, totalToPay);
+      }
+    };
+
+    window.executeFullSettlement = function(loan, totalToPayPaise) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const paymentMode = document.getElementById('repay-payment-mode').value;
+
+      // 1. Record Transaction
+      transactions.push({
+        id: `t-${Date.now()}`,
+        date: todayStr,
+        type: 'loan_repayment',
+        amount: fromPaise(totalToPayPaise),
+        memberName: members.find(m => m.id === loan.memberId)?.name || 'Unknown',
+        loanId: loan.id,
+        paymentMode: paymentMode,
+        description: `પૂર્ણ લોન સેટલમેન્ટ (Full Settlement) #${loan.id}`
+      });
+
+      // 2. Mark Closed
+      loan.status = 'closed';
+      loan.currentBalance = 0;
+      loan.totalInterestPaid = (loan.totalInterestPaid || 0) + fromPaise(Math.max(0, toPaise(fromPaise(totalToPayPaise)) - (loan.principalAmount - loan.currentBalance)));
+
+      saveToLocalStorage();
+      renderAllViews();
+      closeModal('modal-repay');
+      alert('લોન સફળતાપૂર્વક બંધ અને સેટલ કરવામાં આવી છે!');
+    };
+
     // --- VIEWPORT RENDERING & NAVIGATION ---
     const TABS = ['dashboard', 'members', 'ledger', 'backup'];
     let activeTab = 'dashboard';
@@ -4660,7 +4703,8 @@
       const memberActiveLoans = loans.filter(l => l.memberId === m.id && l.status === 'active');
       const isGuj = currentLang === 'guj';
       const memberDisplayLoanBal = memberActiveLoans.reduce((sum, l) => {
-        return sum + calculateMemberLoanDisplayBalance(l, m.name);
+        const intSched = calculateLoanInterestSchedule(l, m.name);
+        return sum + toPaise(intSched ? intSched.totalDueWithInterest : l.currentBalance);
       }, 0);
 
       // 1. Profile Banner
@@ -4768,7 +4812,6 @@
 
           const cardsHtml = memberActiveLoans.map((activeLoan, idx) => {
             const intSched = calculateLoanInterestSchedule(activeLoan, m.name);
-            const memberDisplayBal = calculateMemberLoanDisplayBalance(activeLoan, m.name);
             const prinPaid = activeLoan.principalAmount - activeLoan.currentBalance;
             const progressPercent = activeLoan.principalAmount > 0 
               ? Math.min(100, Math.round(((activeLoan.principalAmount - activeLoan.currentBalance) / activeLoan.principalAmount) * 100))
@@ -4823,9 +4866,15 @@
                     <strong style="font-size: 11px; color: #059669;">₹${prinPaid.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
                   </div>
                   <div style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                    <span style="font-size: 9px; color: #64748b; display: block;">કુલ લોન રકમ</span>
-                    <strong style="font-size: 11px; color: #dc2626;">₹${memberDisplayBal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
+                    <span style="font-size: 9px; color: #64748b; display: block;">કુલ ચૂકવવાપાત્ર</span>
+                    <strong style="font-size: 11px; color: #dc2626;">₹${intSched ? intSched.totalDueWithInterest.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : activeLoan.currentBalance.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
                   </div>
+                </div>
+
+                <!-- 6-Month Display Only Rule -->
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #fffbeb; padding: 6px 10px; border-radius: 6px; border: 1px solid #fcd34d; font-size: 9px;">
+                  <span style="color: #92400e; font-weight: 600;">દર્શાવેલ લોન રકમ (6-માસિક ચક્ર):</span>
+                  <strong style="color: #b45309; font-size: 11px;">₹${calculateMemberLoanDisplayBalance(activeLoan, m.name).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
                 </div>
 
                 <!-- Total Paid EMIs Row -->
