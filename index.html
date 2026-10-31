@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="gu">
-<head>
+<head><script type="text/javascript" src="/___vscode_livepreview_injected_script"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light">
@@ -49,6 +49,13 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      scrollbar-width: none !important; /* Firefox */
+      -ms-overflow-style: none !important; /* IE and Edge */
+    }
+    *::-webkit-scrollbar {
+      display: none !important; /* Chrome, Safari, Opera */
+      width: 0 !important;
+      height: 0 !important;
     }
     body {
       background-color: var(--bg-page);
@@ -917,6 +924,23 @@
               </div>
             </div>
 
+            <!-- 4. One Horizontal Long Card: Sabhasad Deposit -->
+            <div style="background: linear-gradient(145deg, #ffffff, #fdf4ff); border: 1.5px solid #f0abfc; border-radius: 14px; padding: 12px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px -3px rgba(162, 28, 175, 0.05);">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(162, 28, 175, 0.1); border: 1px solid rgba(162, 28, 175, 0.25); display: flex; align-items: center; justify-content: center; color: #a21caf; flex-shrink: 0;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M12 11V3"/><path d="m8 7 4-4 4 4"/></svg>
+                </div>
+                <div>
+                  <span data-gu="સભાસદ ડિપોઝિટ / Sabhasad Deposit" data-en="Sabhasad Deposit" style="font-size: 10.5px; color: #475569; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: block;">સભાસદ ડિપોઝિટ / Sabhasad Deposit</span>
+                  <span id="dash-sabhasad-deposit-sub" style="font-size: 9.5px; color: #86198f;">નવા સભ્ય એડવાન્સ અનામત</span>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 20px; font-weight: 900; color: #a21caf;" id="stat-sabhasad-deposit">₹0</div>
+                <span style="font-size: 8.5px; color: #a21caf; background: #fae8ff; padding: 1px 6px; border-radius: 4px; border: 1px solid #f5d0fe; font-weight: 700;">ઉપલબ્ધ સિલક</span>
+              </div>
+            </div>
+
             <!-- Current Share Value & Society Rules Admin Editable Card (Dashboard Middle) -->
             <div class="card" style="margin-bottom: 12px; background: #ffffff; border: 1px solid #e2e8f0;">
               <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
@@ -982,14 +1006,18 @@
                 આવક, ખર્ચ અને નફો (Revenue & Profit Analysis)
               </h4>
               
-              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 8px;">
-                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; border-radius: 8px;">
-                  <span data-gu="વ્યાજ આવક (Loan Interest)" data-en="Interest Revenue" style="font-size: 8px; color: #64748b; font-weight: 700;">વ્યાજ આવક (Loan Interest)</span>
-                  <div style="font-size: 12px; font-weight: 800; color: #1e40af; margin-top: 2px;" id="dash-total-interest">₹0</div>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px;">
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 6px; border-radius: 8px;">
+                  <span style="font-size: 7.5px; color: #64748b; font-weight: 700; display: block;">વ્યાજ આવક (Loan Int)</span>
+                  <div style="font-size: 11.5px; font-weight: 800; color: #1e40af; margin-top: 2px;" id="dash-total-interest">₹0</div>
                 </div>
-                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; border-radius: 8px;">
-                  <span data-gu="કુલ મળેલ દાન (Donations)" data-en="Received Donations" style="font-size: 8px; color: #64748b; font-weight: 700;">કુલ મળેલ દાન (Donations)</span>
-                  <div style="font-size: 12px; font-weight: 800; color: #059669; margin-top: 2px;" id="dash-total-donations">₹0</div>
+                <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 8px 6px; border-radius: 8px;">
+                  <span style="font-size: 7.5px; color: #065f46; font-weight: 700; display: block;">બેંક વ્યાજ (Bank Int)</span>
+                  <div style="font-size: 11.5px; font-weight: 800; color: #059669; margin-top: 2px;" id="dash-total-bank-interest">₹0</div>
+                </div>
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 6px; border-radius: 8px;">
+                  <span style="font-size: 7.5px; color: #64748b; font-weight: 700; display: block;">કુલ દાન (Donations)</span>
+                  <div style="font-size: 11.5px; font-weight: 800; color: #059669; margin-top: 2px;" id="dash-total-donations">₹0</div>
                 </div>
               </div>
 
@@ -1250,24 +1278,53 @@
           </form>
         </div>
 
-        <!-- Daily Transactions Log -->
-        <div id="daily-tx-wrapper" class="space-y-4 hidden">
-          <div class="card space-y-2">
-            <input type="text" id="tx-search-box" class="form-input" placeholder="સભ્ય અથવા હેતુ શોધો...">
-            <select id="tx-type-select" class="form-select">
-              <option value="all">તમામ પ્રકારના વ્યવહારો (All Transactions)</option>
-              <option value="savings">માસિક બચત જમા (Savings)</option>
-              <option value="share_capital">શેર મૂડી જમા (Share Capital)</option>
-              <option value="loan_disbursal">નવી લોન આપેલ (Disbursals)</option>
-              <option value="loan_repayment">લોન હપ્તા જમા (Repayments)</option>
-              <option value="interest_payment">વ્યાજ જમા (Interest)</option>
-              <option value="other_income">ટ્રસ્ટ દાન / અન્ય ભંડોળ (Donation / Misc)</option>
-              <option value="other_expense">ખર્ચ વિગત (Expenses Out)</option>
-            </select>
+        <!-- Daily Transactions Log (Chopdo Dainik Hisaab) -->
+        <div id="daily-tx-wrapper" class="space-y-3.5 hidden">
+          <div class="card space-y-3" style="background: linear-gradient(145deg, #ffffff, #f8fafc); border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+              <div>
+                <h4 style="font-size: 13px; font-weight: 800; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 6px;">
+                  📖 ચોપડો - દૈનિક હિસાબ નોંધ (Daily Ledger Chopdo)
+                </h4>
+                <p style="font-size: 9.5px; color: #64748b; margin: 2px 0 0 0;">આવક, જાવક, બચત, લોન, વ્યાજ અને તમામ સોસાયટી ચોપડા વ્યવહારોની સચોટ યાદી</p>
+              </div>
+              <span id="daily-tx-count-badge" style="font-size: 9.5px; background: #eff6ff; color: #1d4ed8; padding: 2px 8px; border-radius: 9999px; font-weight: 700; border: 1px solid #dbeafe; white-space: nowrap;">
+                0 નોંધ
+              </span>
+            </div>
+
+            <!-- Summary Cards Bar -->
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+              <div style="background: #ecfdf5; border: 1px solid #a7f3d0; padding: 8px 10px; border-radius: 8px;">
+                <span style="font-size: 8px; color: #065f46; font-weight: 700; text-transform: uppercase;">કુલ આવક / જમા (Total Credit)</span>
+                <div style="font-size: 13.5px; font-weight: 900; color: #059669; margin-top: 2px;" id="daily-tx-summary-income">+₹0</div>
+              </div>
+              <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 8px 10px; border-radius: 8px;">
+                <span style="font-size: 8px; color: #991b1b; font-weight: 700; text-transform: uppercase;">કુલ જાવક / ખર્ચ (Total Debit)</span>
+                <div style="font-size: 13.5px; font-weight: 900; color: #dc2626; margin-top: 2px;" id="daily-tx-summary-expense">-₹0</div>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <input type="text" id="tx-search-box" class="form-input" placeholder="સભ્યનું નામ, વિગત, બેંક કે તારીખથી શોધો..." style="font-size: 11px;">
+              <select id="tx-type-select" class="form-select" style="font-size: 11px;">
+                <option value="all">તમામ વ્યવહારો (All Transactions)</option>
+                <option value="savings">માસિક બચત જમા (Savings Deposit)</option>
+                <option value="loan_repayment">લોન મુદ્દલ હપ્તો (Loan EMI Repayment)</option>
+                <option value="interest_payment">લોન વ્યાજ જમા (Loan Interest)</option>
+                <option value="bank_interest">બેંક વ્યાજ (Bank Interest)</option>
+                <option value="bank_transfer">સ્વયં બેંક ટ્રાન્સફર (Self Bank Transfer)</option>
+                <option value="share_capital">શેર મૂડી જમા (Share Capital)</option>
+                <option value="sabhasad_deposit">સભાસદ ડિપોઝિટ (Sabhasad Deposit)</option>
+                <option value="other_income">દાન / અન્ય આવક (Donation / Other Income)</option>
+                <option value="loan_disbursal">નવી લોન આપેલ (Loan Disbursal)</option>
+                <option value="other_expense">સોસાયટી ખર્ચ ચૂકવણી (Expenses Out)</option>
+              </select>
+            </div>
           </div>
 
-          <div id="tx-cards-list" class="space-y-2">
-            <!-- Dynamic tx cards -->
+          <div id="tx-cards-list" class="space-y-2.5">
+            <!-- Dynamic tx cards rendered by renderDailyLogs() -->
           </div>
         </div>
 
@@ -1522,19 +1579,62 @@
     </div>
 
     <div class="modal-fullscreen-body">
-      <!-- Income / Expense Segment Toggle -->
-      <div class="segmented-control" style="margin-bottom: 20px;">
-        <button type="button" class="segment-btn active" id="unified-type-income-btn" onclick="setUnifiedTabType('income')"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>આવક જમા (Income Receipt)</button>
-        <button type="button" class="segment-btn" id="unified-type-expense-btn" onclick="setUnifiedTabType('expense')"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>જાવક ચૂકવણી (Expense Payment)</button>
+      <!-- Income / Expense / Transfer Segment Toggle -->
+      <div class="segmented-control" style="margin-bottom: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: #f1f5f9; border-radius: 10px;">
+        <button type="button" class="segment-btn active" id="unified-type-income-btn" onclick="setUnifiedTabType('income')" style="font-size: 10px; font-weight: 800; padding: 8px 4px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>આવક જમા
+        </button>
+        <button type="button" class="segment-btn" id="unified-type-expense-btn" onclick="setUnifiedTabType('expense')" style="font-size: 10px; font-weight: 800; padding: 8px 4px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>જાવક ચૂકવણી
+        </button>
+        <button type="button" class="segment-btn" id="unified-type-transfer-btn" onclick="setUnifiedTabType('transfer')" style="font-size: 10px; font-weight: 800; padding: 8px 4px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>સ્વયં ટ્રાન્સફર
+        </button>
       </div>
 
       <form id="form-unified-transaction" class="space-y-4">
         <!-- Sub-Type Selector (Changes based on Income/Expense) -->
-        <div class="form-group">
+        <div class="form-group" id="unified-category-group">
           <label class="form-label">વ્યવહાર પ્રકાર (Transaction Category) *</label>
-          <select id="unified-category-select" class="form-select" required onchange="handleUnifiedCategoryChange()">
+          <select id="unified-category-select" class="form-select" onchange="handleUnifiedCategoryChange()">
             <!-- Loaded dynamically -->
           </select>
+        </div>
+
+        <!-- SELF BANK TRANSFER SPECIFIC FIELDS -->
+        <div id="unified-transfer-fields" class="space-y-3.5 hidden">
+          <div style="background-color: #fdf4ff; border: 1.5px solid #f0abfc; padding: 12px; border-radius: 12px;" class="space-y-1.5">
+            <div style="font-size: 11px; font-weight: 800; color: #86198f; text-transform: uppercase; display: flex; align-items: center; gap: 5px;">
+              🔄 સ્વયં બેંક ટ્રાન્સફર (Internal Account Transfer)
+            </div>
+            <p style="font-size: 9.5px; color: #701a75; margin: 0; line-height: 1.4;">
+              એક બેંક ખાતામાંથી બીજા બેંક ખાતામાં રકમ સ્થાનાંતરિત કરો. આનાથી સોસાયટીના કુલ ભંડોળ પર કોઈ ફેરફાર થતો નથી, માત્ર સિલેક્ટ કરેલી બેંકોનું બેલેન્સ ટ્રાન્સફર થાય છે.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="font-weight: 700; color: #dc2626;">ક્યાંથી ટ્રાન્સફર કરશો? (From Account - કપાશે) *</label>
+            <select id="transfer-from-bank" class="form-select" onchange="updateTransferBalancesDisplay()" style="border-color: #f87171; background: #fff5f5; font-weight: 600;">
+              <option value="Bank 1" selected>BOI - Bank of India (Bank 1)</option>
+              <option value="Bank 2">BOB A/c 60149 (Bank 2)</option>
+              <option value="Bank 3">BOB A/c 00839 (Bank 3)</option>
+            </select>
+            <div style="font-size: 10px; color: #991b1b; margin-top: 3px; font-weight: 700;" id="transfer-from-bal-lbl">
+              હાલ ઉપલબ્ધ બેલેન્સ: ₹0
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="font-weight: 700; color: #059669;">ક્યાં જમા કરશો? (To Account - જમા થશે) *</label>
+            <select id="transfer-to-bank" class="form-select" onchange="updateTransferBalancesDisplay()" style="border-color: #34d399; background: #f0fdf4; font-weight: 600;">
+              <option value="Bank 2" selected>BOB A/c 60149 (Bank 2)</option>
+              <option value="Bank 1">BOI - Bank of India (Bank 1)</option>
+              <option value="Bank 3">BOB A/c 00839 (Bank 3)</option>
+            </select>
+            <div style="font-size: 10px; color: #065f46; margin-top: 3px; font-weight: 700;" id="transfer-to-bal-lbl">
+              હાલ ઉપલબ્ધ બેલેન્સ: ₹0
+            </div>
+          </div>
         </div>
 
         <!-- Member Selector Container (Shown for Member activities) -->
@@ -1806,6 +1906,7 @@
               <option value="Bank 2">BOB A/c 60149 (Bank 2)</option>
               <option value="Bank 3">BOB A/c 00839 (Bank 3)</option>
               <option value="રોકડ">રોકડ (Cash)</option>
+              <option value="સભાસદ ડિપોઝિટ">સભાસદ ડિપોઝિટમાંથી (From Sabhasad Deposit)</option>
             </select>
           </div>
 
@@ -1862,6 +1963,7 @@
               <option value="Bank 2">BOB A/c 60149 (Bank 2)</option>
               <option value="Bank 3">BOB A/c 00839 (Bank 3)</option>
               <option value="રોકડ">રોકડ (Cash)</option>
+              <option value="સભાસદ ડિપોઝિટ">સભાસદ ડિપોઝિટમાંથી (From Sabhasad Deposit)</option>
             </select>
           </div>
 
@@ -2590,6 +2692,7 @@
     function normalizeBankName(mode) {
       if (!mode) return 'Bank 1';
       const m = String(mode).toLowerCase();
+      if (m.includes('સભાસદ') || m.includes('sabhasad')) return 'સભાસદ ડિપોઝિટમાંથી';
       if (m.includes('bank 3') || m.includes('00839')) return 'Bank 3';
       if (m.includes('bank 2') || m.includes('60149')) return 'Bank 2';
       if (m.includes('bank 1') || m.includes('boi')) return 'Bank 1';
@@ -3870,6 +3973,7 @@
       if (!loan) {
         return {
           monthlyInterest: 0,
+          previousPeriodInterest: 0,
           thisMonthInterestPaid: 0,
           nextMonthInterest: 0,
           pendingInterest: 0,
@@ -3881,7 +3985,9 @@
           currentMonthCode: '',
           totalInterestPaid: 0,
           totalPaidCount: 0,
-          prePaidMonths: 0
+          disAccruedDays: 0,
+          disDaysInMonth: 30,
+          targetDaysInMonth: 30
         };
       }
 
@@ -3889,141 +3995,98 @@
       const now = new Date();
       const currentMonthCode = normalizeMonthCode(now);
       const effectiveMonthCode = targetMonthCodeOverride || currentMonthCode;
-      const mName = memberName || (members.find(m => m.id === loan.memberId)?.name) || '';
 
-      // AUTHORITATIVE SOURCE: Only use Transactions for loan simulation to avoid double counting.
-      const rawPayments = [];
-      transactions.forEach(t => {
-        const isMatch = (t.loanId === loan.id) || (t.memberId === loan.memberId && (!t.loanId || t.loanId === loan.id));
-        const descMatch = (t.description || '').includes(`#${loan.id}`);
-        if ((t.type === 'loan_repayment' || t.type === 'interest_payment') && (isMatch || descMatch)) {
-          let mCode = normalizeMonthCode(t.date);
-          const match = (t.description || '').match(/\d{4}-\d{2}/);
-          if (match) mCode = match[0];
-
-          rawPayments.push({
-            date: normalizeDateStr(t.date),
-            amountPaise: toPaise(t.amount || 0),
-            monthCode: mCode,
-            id: t.id
-          });
-        }
-      });
-
-      rawPayments.sort((a, b) => (a.date > b.date ? 1 : (a.date < b.date ? -1 : 0)));
-
-      let runningBalancePaise = toPaise(loan.principalAmount || 0);
-      let interestDebtPaise = 0;
-      let totalInterestPaidPaise = 0;
-      let paidEmiLog = [];
-      
-      let disYear = 2026, disMonth = 1, disDay = 1;
+      let disYear = 2026, disMonth = 9, disDay = 26;
       if (loan.disburseDate) {
         const parts = normalizeDateStr(loan.disburseDate).split('-');
         disYear = parseInt(parts[0]);
         disMonth = parseInt(parts[1]);
         disDay = parseInt(parts[2]) || 1;
       }
-      
-      let iterDate = new Date(disYear, disMonth - 1, 1);
+
+      const runningBalancePaise = toPaise(loan.currentBalance !== undefined ? loan.currentBalance : loan.principalAmount || 0);
+      const monthlyBasePaise = Math.round(toPaise(loan.principalAmount || 0) * (rate / 100));
+      const dailyRatePaise = monthlyBasePaise / 30;
+
+      // Issue month days
+      const disDaysInMonth = new Date(disYear, disMonth, 0).getDate();
+      const disAccruedDays = disDaysInMonth - disDay + 1;
+      const disMonthInterestPaise = Math.round(dailyRatePaise * disAccruedDays);
+
+      // Target month
       const targetParts = effectiveMonthCode.split('-');
-      const targetDate = new Date(parseInt(targetParts[0]), parseInt(targetParts[1]) - 1, 1);
-      
-      let monthlyInterestAtTargetPaise = 0;
-      let unpaidMonths = 0;
-      let isThisMonthEmiPaid = false;
-      let thisMonthInterestPaidPaise = 0;
-      let nextMonthInterestEarnedPaise = 0;
-      let deferredInterestEarnedPaise = 0;
+      const targetYear = parseInt(targetParts[0]);
+      const targetMonth = parseInt(targetParts[1]);
+      const targetDaysInMonth = new Date(targetYear, targetMonth, 0).getDate();
 
-      let safety = 0;
-      while (iterDate <= targetDate && safety < 240) {
-        safety++;
-        const year = iterDate.getFullYear();
-        const month = iterDate.getMonth() + 1;
-        const mCode = normalizeMonthCode(iterDate);
-        const daysInMonth = new Date(year, month, 0).getDate();
-
-        // 1. Calculate interest earned in THIS month on current reducing principal
-        let monthInterestEarnedPaise = 0;
-        if (rate > 0 && runningBalancePaise > 0) {
-          if (year === disYear && month === disMonth) {
-            const accruedDays = daysInMonth - disDay + 1;
-            const dailyRate = (runningBalancePaise * (rate / 100)) / daysInMonth;
-            monthInterestEarnedPaise = Math.round(dailyRate * accruedDays);
-          } else {
-            monthInterestEarnedPaise = Math.round(runningBalancePaise * (rate / 100));
-          }
-        }
-
-        // 2. Due Rule: Interest earned in previous month becomes due at start of this month
-        if (deferredInterestEarnedPaise > 0) {
-          interestDebtPaise += deferredInterestEarnedPaise;
-        }
-        deferredInterestEarnedPaise = monthInterestEarnedPaise;
-
-        if (mCode === effectiveMonthCode) {
-          monthlyInterestAtTargetPaise = monthInterestEarnedPaise;
-        }
-
-        // 3. Process payments made in THIS month
-        const currentMonthPayments = rawPayments.filter(p => normalizeMonthCode(p.date) === mCode);
-        const dailyGroups = {};
-        currentMonthPayments.forEach(p => {
-          if (!dailyGroups[p.date]) dailyGroups[p.date] = 0;
-          dailyGroups[p.date] += p.amountPaise;
-        });
-
-        Object.keys(dailyGroups).sort().forEach(date => {
-          const totalPaidPaise = dailyGroups[date];
-          const toInterestPaise = Math.min(totalPaidPaise, interestDebtPaise);
-          const toPrincipalPaise = totalPaidPaise - toInterestPaise;
-          
-          interestDebtPaise -= toInterestPaise;
-          runningBalancePaise = Math.max(0, runningBalancePaise - toPrincipalPaise);
-          totalInterestPaidPaise += toInterestPaise;
-
-          if (mCode === effectiveMonthCode) {
-            thisMonthInterestPaidPaise += toInterestPaise;
-          }
-
-          paidEmiLog.push({
-            date: date,
-            amount: fromPaise(totalPaidPaise),
-            interestPaid: fromPaise(toInterestPaise),
-            principalPaid: fromPaise(toPrincipalPaise),
-            remainingBalance: fromPaise(runningBalancePaise),
-            monthCode: mCode,
-            nextMonthInterest: rate > 0 ? fromPaise(Math.round(runningBalancePaise * (rate / 100))) : 0
-          });
-        });
-
-        if (mCode === effectiveMonthCode) {
-          isThisMonthEmiPaid = thisMonthInterestPaidPaise >= monthlyInterestAtTargetPaise;
-        } else if (iterDate < targetDate && interestDebtPaise > 0) {
-          unpaidMonths++;
-        }
-
-        iterDate.setMonth(iterDate.getMonth() + 1);
+      let targetMonthInterestPaise = 0;
+      if (targetYear === disYear && targetMonth === disMonth) {
+        targetMonthInterestPaise = disMonthInterestPaise;
+      } else {
+        targetMonthInterestPaise = Math.round(dailyRatePaise * targetDaysInMonth);
       }
 
-      nextMonthInterestEarnedPaise = (rate > 0 && runningBalancePaise > 0) ? Math.round(runningBalancePaise * (rate / 100)) : 0;
+      // Previous period interest (due now)
+      let prevMonthInterestPaise = 0;
+      const prevDate = new Date(targetYear, targetMonth - 2, 1);
+      const prevYear = prevDate.getFullYear();
+      const prevMonth = prevDate.getMonth() + 1;
+      const prevDaysInMonth = new Date(prevYear, prevMonth, 0).getDate();
+
+      if (prevYear > disYear || (prevYear === disYear && prevMonth > disMonth)) {
+        prevMonthInterestPaise = Math.round(dailyRatePaise * prevDaysInMonth);
+      } else if (prevYear === disYear && prevMonth === disMonth) {
+        prevMonthInterestPaise = disMonthInterestPaise;
+      }
+
+      // Track paid history
+      let totalInterestPaidPaise = 0;
+      let interestDebtPaise = prevMonthInterestPaise;
+      let paidEmiLog = [];
+
+      transactions.forEach(t => {
+        const isMatch = (t.loanId === loan.id) || (t.memberId === loan.memberId && (!t.loanId || t.loanId === loan.id));
+        const descMatch = (t.description || '').includes(`#${loan.id}`);
+        if ((t.type === 'loan_repayment' || t.type === 'interest_payment') && (isMatch || descMatch)) {
+          let mCode = normalizeMonthCode(t.date);
+          const amtP = toPaise(t.amount || 0);
+          const toInt = Math.min(amtP, interestDebtPaise);
+          const toPrin = amtP - toInt;
+          interestDebtPaise -= toInt;
+          totalInterestPaidPaise += toInt;
+
+          paidEmiLog.push({
+            date: normalizeDateStr(t.date),
+            amount: fromPaise(amtP),
+            interestPaid: fromPaise(toInt),
+            principalPaid: fromPaise(toPrin),
+            remainingBalance: fromPaise(runningBalancePaise),
+            monthCode: mCode,
+            nextMonthInterest: fromPaise(targetMonthInterestPaise)
+          });
+        }
+      });
+
+      const isThisMonthEmiPaid = totalInterestPaidPaise >= prevMonthInterestPaise && prevMonthInterestPaise > 0;
 
       return {
-        monthlyInterest: fromPaise(monthlyInterestAtTargetPaise),
-        thisMonthInterestPaid: fromPaise(thisMonthInterestPaidPaise),
-        nextMonthInterest: fromPaise(nextMonthInterestEarnedPaise),
-        pendingInterest: fromPaise(interestDebtPaise),
-        unpaidMonths,
+        monthlyInterest: fromPaise(targetMonthInterestPaise),
+        previousPeriodInterest: fromPaise(prevMonthInterestPaise),
+        thisMonthInterestPaid: fromPaise(totalInterestPaidPaise),
+        nextMonthInterest: fromPaise(Math.round(dailyRatePaise * new Date(targetYear, targetMonth + 1, 0).getDate())),
+        pendingInterest: fromPaise(Math.max(0, interestDebtPaise)),
+        unpaidMonths: interestDebtPaise > 0 ? 1 : 0,
         isThisMonthEmiPaid,
         currentBalance: fromPaise(runningBalancePaise),
-        totalDueWithInterest: fromPaise(runningBalancePaise + interestDebtPaise),
+        totalDueWithInterest: fromPaise(runningBalancePaise + Math.max(0, interestDebtPaise)),
         paidEmiLog,
         rate,
         currentMonthCode,
         totalInterestPaid: fromPaise(totalInterestPaidPaise),
         totalPaidCount: paidEmiLog.length,
-        prePaidMonths: 0
+        disAccruedDays,
+        disDaysInMonth,
+        targetDaysInMonth
       };
     }
 
@@ -4129,52 +4192,52 @@
 
             <!-- Auto interest calculation box -->
             <div style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 12px;" class="space-y-2">
-              <!-- This Month Section -->
+              <!-- Previous Period Interest (Payable Now) -->
               <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dbeafe; padding-bottom: 6px;">
                 <div>
                   <span style="font-size: 11px; font-weight: 700; color: #1e40af;">
-                    ${isGuj ? 'ચાલુ માસ વ્યાજ (This Month)' : 'This Month Interest'}
+                    ${isGuj ? 'પાછલા સમયગાળાનું વ્યાજ' : 'Previous Period Interest'}
                   </span>
                   <div style="font-size: 9px; color: #3b82f6;">
-                    ${intSched.isThisMonthEmiPaid 
-                      ? `જમા મળેલ વ્યાજ: ₹${intSched.thisMonthInterestPaid.toLocaleString('en-IN')}` 
-                      : `ચૂકવવાપાત્ર વ્યાજ: ₹${intSched.monthlyInterest.toLocaleString('en-IN')}`}
+                    ${intSched.disAccruedDays} days · ${isGuj ? 'ચૂકવવાપાત્ર હવે' : 'Payable Now'}
                   </div>
                 </div>
-                <div>
-                  ${intSched.isThisMonthEmiPaid 
-                    ? `<span style="background: #ecfdf5; color: #047857; font-weight: 700; font-size: 9.5px; padding: 3px 8px; border-radius: 6px; border: 1px solid #a7f3d0;">✓ EMI જમા થયેલ છે (Done)</span>`
-                    : '<span style="background: #fef2f2; color: #dc2626; font-weight: 700; font-size: 9.5px; padding: 3px 8px; border-radius: 6px; border: 1px solid #fecaca;">EMI બાકી છે (Pending)</span>'}
+                <div style="text-align: right;">
+                  <strong style="font-size: 13px; color: #1e40af;">₹${intSched.previousPeriodInterest.toLocaleString('en-IN')}</strong>
+                  <div style="font-size: 8.5px; color: #047857; font-weight: 700;">ચૂકવવાપાત્ર (Due)</div>
                 </div>
               </div>
 
-              <!-- Next Month Section -->
+              <!-- Current Month Interest (Payable Next Month) -->
+              <div style="background: #ffffff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <span style="font-size: 10.5px; font-weight: 700; color: #0284c7;">
+                      ${isGuj ? 'ચાલુ માસનું વ્યાજ' : 'This Month Interest'}
+                    </span>
+                    <div style="font-size: 8.5px; color: #64748b;">
+                      ${intSched.targetDaysInMonth} days · ${isGuj ? 'આવતા મહિને ચૂકવવાપાત્ર' : 'Payable Next Month'}
+                    </div>
+                  </div>
+                  <strong style="font-size: 12px; color: #0369a1;">₹${intSched.monthlyInterest.toLocaleString('en-IN')}</strong>
+                </div>
+              </div>
+
+              <!-- Next Month Expected Interest -->
               <div style="background: #ffffff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 8px;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                   <span style="font-size: 10.5px; font-weight: 700; color: #0284c7;">
-                    ${isGuj ? 'આવતા માસનું વ્યાજ (Next Month Interest)' : 'Next Month Expected Interest'}
+                    ${isGuj ? 'આવતા મહિને વ્યાજ' : 'Next Month Interest'}
                   </span>
-                  <strong style="font-size: 12px; color: #0369a1;">₹${intSched.nextMonthInterest.toLocaleString('en-IN')} / માસ</strong>
-                </div>
-                <div style="font-size: 8.5px; color: #64748b; margin-top: 2px;">
-                  હાલની બાકી મુદ્દલ રકમ ₹${intSched.currentBalance.toLocaleString('en-IN')} પર ${intSched.rate}% લેખે આવતા મહિને ₹${intSched.nextMonthInterest.toLocaleString('en-IN')} વ્યાજ થશે.
+                  <strong style="font-size: 12px; color: #0369a1;">₹${intSched.nextMonthInterest.toLocaleString('en-IN')}</strong>
                 </div>
               </div>
 
-              ${intSched.pendingInterest > 0 ? `
-                <div style="background: #ffffff; border: 1px solid #fca5a5; border-radius: 8px; padding: 8px; margin-top: 6px;">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 10px; color: #991b1b; font-weight: 600;">⚠️ બાકી વ્યાજ (${intSched.unpaidMonths} માસ):</span>
-                    <strong style="font-size: 12px; color: #dc2626;">+₹${intSched.pendingInterest.toLocaleString('en-IN')}</strong>
-                  </div>
-                  <p style="font-size: 8.5px; color: #b91c1c; margin: 2px 0 0 0;">
-                    ${intSched.unpaidMonths} મહિનાથી હપ્તો ભરેલ ન હોવાથી વ્યાજ ઉમેરાયેલ છે.
-                  </p>
-                </div>
-              ` : ''}
-
               <div style="display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #bfdbfe; padding-top: 8px; margin-top: 6px;">
-                <span style="font-size: 11px; font-weight: 800; color: #383644;">કુલ ચૂકવવાપાત્ર રકમ (મુદ્દલ + વ્યાજ):</span>
+                <div>
+                  <span style="font-size: 11px; font-weight: 800; color: #383644;">કુલ ચૂકવવાપાત્ર રકમ (Total Payable Now):</span>
+                  <div style="font-size: 8.5px; color: #64748b;">Principal ₹${intSched.currentBalance.toLocaleString('en-IN')} + Previous Interest ₹${intSched.previousPeriodInterest.toLocaleString('en-IN')}</div>
+                </div>
                 <strong style="font-size: 13px; font-weight: 900; color: #b91c1c;">₹${intSched.totalDueWithInterest.toLocaleString('en-IN')}</strong>
               </div>
             </div>
@@ -4360,9 +4423,32 @@
       transactions.forEach(t => {
         const amtP = toPaise(t.amount || 0);
         const type = t.type;
-        const isIncome = (type === 'savings' || type === 'loan_repayment' || type === 'interest_payment' || type === 'other_income' || type === 'share_capital');
-        const isExpense = (type === 'loan_disbursal' || type === 'other_expense');
         const mode = (t.paymentMode || '').toLowerCase();
+
+        // If paid from Sabhasad Deposit, money was already deposited into bank earlier (avoids double counting)
+        if (mode.includes('સભાસદ') || mode.includes('sabhasad')) {
+          return;
+        }
+
+        if (type === 'bank_transfer') {
+          const fromB = (t.fromBank || '').toLowerCase();
+          const toB = (t.toBank || '').toLowerCase();
+
+          // Deduct from source bank
+          if (fromB.includes('bank 3') || fromB.includes('00839')) b3 -= amtP;
+          else if (fromB.includes('bank 2') || fromB.includes('60149')) b2 -= amtP;
+          else if (fromB.includes('bank 1') || fromB.includes('boi')) b1 -= amtP;
+
+          // Add to destination bank
+          if (toB.includes('bank 3') || toB.includes('00839')) b3 += amtP;
+          else if (toB.includes('bank 2') || toB.includes('60149')) b2 += amtP;
+          else if (toB.includes('bank 1') || toB.includes('boi')) b1 += amtP;
+
+          return;
+        }
+
+        const isIncome = (type === 'savings' || type === 'loan_repayment' || type === 'interest_payment' || type === 'bank_interest' || type === 'other_income' || type === 'share_capital' || type === 'sabhasad_deposit');
+        const isExpense = (type === 'loan_disbursal' || type === 'other_expense');
         
         if (isIncome) {
           if (mode.includes('bank 3') || mode.includes('00839')) b3 += amtP;
@@ -4380,6 +4466,22 @@
         bank3: fromPaise(b3), 
         total: fromPaise(b1 + b2 + b3) 
       };
+    }
+
+    function getSabhasadDepositBalance() {
+      let deposited = 0;
+      let used = 0;
+      transactions.forEach(t => {
+        const amt = Number(t.amount) || 0;
+        if (t.type === 'sabhasad_deposit') {
+          deposited += amt;
+        } else if (t.paymentMode && (t.paymentMode.includes('સભાસદ') || t.paymentMode.includes('sabhasad'))) {
+          used += amt;
+        } else if (t.type === 'sabhasad_deposit_used') {
+          used += amt;
+        }
+      });
+      return Math.max(0, deposited - used);
     }
 
     window.updateDisburseBankDisplay = function() {
@@ -4714,10 +4816,11 @@
             other_income: isGuj ? 'ટ્રસ્ટ ભંડોળ / દાન' : 'Trust Fund / Donation',
             other_expense: isGuj ? 'મંડળી ખર્ચ' : 'Society Expense',
             share_capital: isGuj ? 'શેર મૂડી જમા' : 'Share Capital Deposit',
+            sabhasad_deposit: isGuj ? 'સભાસદ ડિપોઝિટ' : 'Sabhasad Deposit',
           };
 
           passbookEl.innerHTML = txList.map(t => {
-            const isCredit = (t.type === 'savings' || t.type === 'loan_repayment' || t.type === 'interest_payment' || t.type === 'other_income' || t.type === 'share_capital');
+            const isCredit = (t.type === 'savings' || t.type === 'loan_repayment' || t.type === 'interest_payment' || t.type === 'other_income' || t.type === 'share_capital' || t.type === 'sabhasad_deposit');
             const color = isCredit ? '#059669' : '#dc2626';
             const sign = isCredit ? '+' : '-';
 
@@ -4763,6 +4866,12 @@
       document.getElementById('stat-cash').textContent = `₹${trustCash.toLocaleString('en-IN')}`;
       document.getElementById('stat-loans').textContent = `₹${totalOutstanding.toLocaleString('en-IN')}`;
       document.getElementById('stat-savings').textContent = `₹${totalSavings.toLocaleString('en-IN')}`;
+
+      const sabhasadDepositVal = getSabhasadDepositBalance();
+      const sabhasadDepositEl = document.getElementById('stat-sabhasad-deposit');
+      if (sabhasadDepositEl) {
+        sabhasadDepositEl.textContent = `₹${sabhasadDepositVal.toLocaleString('en-IN')}`;
+      }
       
       if (currentLang === 'eng') {
         document.getElementById('stat-shares').textContent = `${activeShares} Share(s)`;
@@ -4805,6 +4914,10 @@
         .reduce((sum, l) => sum + (l.totalInterestPaid || 0), 0);
       const totalInterestCollected = Math.max(allTxInterest, allEntriesInterest, allLoansInterest);
 
+      const totalBankInterest = transactions
+        .filter(t => t.type === 'bank_interest')
+        .reduce((sum, t) => sum + t.amount, 0);
+
       const totalDonations = transactions
         .filter(t => t.type === 'other_income' && !t.id.includes('share') && !(t.description || '').includes('શેર'))
         .reduce((sum, t) => sum + t.amount, 0);
@@ -4813,12 +4926,17 @@
         .filter(t => t.type === 'other_expense')
         .reduce((sum, t) => sum + t.amount, 0);
 
-      // Net Profit = Collected Interest - Society Expenses (as requested by user)
-      const netProfit = totalInterestCollected - totalExpenses;
+      // Net Profit = Collected Interest + Bank Interest - Society Expenses
+      const netProfit = totalInterestCollected + totalBankInterest - totalExpenses;
 
       const totalInterestEl = document.getElementById('dash-total-interest');
       if (totalInterestEl) {
         totalInterestEl.textContent = `₹${totalInterestCollected.toLocaleString('en-IN')}`;
+      }
+
+      const totalBankInterestEl = document.getElementById('dash-total-bank-interest');
+      if (totalBankInterestEl) {
+        totalBankInterestEl.textContent = `₹${totalBankInterest.toLocaleString('en-IN')}`;
       }
 
       const totalDonationsEl = document.getElementById('dash-total-donations');
@@ -5772,58 +5890,106 @@
     txTypeSelect.addEventListener('change', renderDailyLogs);
 
     function renderDailyLogs() {
-      const q = txSearchBox.value.toLowerCase();
-      const typeF = txTypeSelect.value;
+      const q = (txSearchBox ? txSearchBox.value : '').toLowerCase().trim();
+      const typeF = txTypeSelect ? txTypeSelect.value : 'all';
 
       const filteredTx = transactions.filter(t => {
-        const matchesQuery = t.memberName.toLowerCase().includes(q) || 
-                             t.description.toLowerCase().includes(q);
+        const memberMatch = (t.memberName || '').toLowerCase().includes(q);
+        const descMatch = (t.description || '').toLowerCase().includes(q);
+        const dateMatch = (t.date || '').includes(q);
+        const modeMatch = (t.paymentMode || '').toLowerCase().includes(q);
+        const amountMatch = String(t.amount || '').includes(q);
+        
+        const matchesQuery = !q || memberMatch || descMatch || dateMatch || modeMatch || amountMatch;
         const matchesType = typeF === 'all' || t.type === typeF;
         return matchesQuery && matchesType;
-      }).sort((a,b) => b.date.localeCompare(a.date));
+      }).sort((a,b) => {
+        const dateCmp = (b.date || '').localeCompare(a.date || '');
+        if (dateCmp !== 0) return dateCmp;
+        return String(b.id || '').localeCompare(String(a.id || ''));
+      });
+
+      // Calculate totals for current filter view
+      let totalIncome = 0;
+      let totalExpense = 0;
+
+      filteredTx.forEach(t => {
+        const isExp = (t.type === 'loan_disbursal' || t.type === 'other_expense');
+        const isXfer = (t.type === 'bank_transfer');
+        if (isExp) {
+          totalExpense += (t.amount || 0);
+        } else if (!isXfer) {
+          totalIncome += (t.amount || 0);
+        }
+      });
+
+      const incomeEl = document.getElementById('daily-tx-summary-income');
+      if (incomeEl) incomeEl.textContent = `+₹${totalIncome.toLocaleString('en-IN')}`;
+      
+      const expenseEl = document.getElementById('daily-tx-summary-expense');
+      if (expenseEl) expenseEl.textContent = `-₹${totalExpense.toLocaleString('en-IN')}`;
+
+      const countBadge = document.getElementById('daily-tx-count-badge');
+      if (countBadge) countBadge.textContent = `${filteredTx.length} નોંધ`;
 
       const container = document.getElementById('tx-cards-list');
+      if (!container) return;
+
       if (filteredTx.length === 0) {
-        container.innerHTML = `<div style="text-align: center; color: #9ca3af; font-style: italic; padding: 24px; font-size: 11px;">કોઈ ટ્રાન્ઝેક્શન નોંધ મળેલ નથી.</div>`;
+        container.innerHTML = `<div style="text-align: center; color: #9ca3af; font-style: italic; padding: 28px; font-size: 11px; background: #ffffff; border-radius: 12px; border: 1px dashed #cbd5e1;">કોઈ ચોપડા ટ્રાન્ઝેક્શન નોંધ મળેલ નથી.</div>`;
         return;
       }
 
+      const typesConfig = {
+        savings: { label: 'માસિક બચત જમા', bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' },
+        loan_disbursal: { label: 'નવી લોન આપેલ', bg: '#faf5ff', color: '#7e22ce', border: '#e9d5ff' },
+        loan_repayment: { label: 'લોન મુદ્દલ હપ્તો', bg: '#ecfdf5', color: '#047857', border: '#a7f3d0' },
+        interest_payment: { label: 'લોન વ્યાજ જમા', bg: '#f0f9ff', color: '#0284c7', border: '#bae6fd' },
+        bank_interest: { label: 'બેંક વ્યાજ જમા', bg: '#f0fdf4', color: '#15803d', border: '#bbf7d0' },
+        bank_transfer: { label: 'સ્વયં બેંક ટ્રાન્સફર', bg: '#fdf4ff', color: '#86198f', border: '#f0abfc' },
+        other_income: { label: 'દાન / અન્ય આવક', bg: '#ecfdf5', color: '#059669', border: '#a7f3d0' },
+        other_expense: { label: 'સોસાયટી ખર્ચ', bg: '#fef2f2', color: '#dc2626', border: '#fecaca' },
+        share_capital: { label: 'શેર મૂડી જમા', bg: '#fffbeb', color: '#b45309', border: '#fde68a' },
+        sabhasad_deposit: { label: 'સભાસદ ડિપોઝિટ', bg: '#fdf4ff', color: '#a21caf', border: '#f0abfc' }
+      };
+
       container.innerHTML = filteredTx.map(t => {
         const isExp = t.type === 'loan_disbursal' || t.type === 'other_expense';
-        const sign = isExp ? '-' : '+';
-        const color = isExp ? '#dc2626' : '#059669';
-
-        const typesGuj = {
-          savings: 'બચત જમા',
-          loan_disbursal: 'લોન ચુકવણી',
-          loan_repayment: 'લોન પરત',
-          interest_payment: 'વ્યાજ જમા',
-          other_income: 'ટ્રસ્ટ ભંડોળ / દાન',
-          other_expense: 'મંડળી ખર્ચ',
-          share_capital: 'શેર મૂડી જમા',
-        };
+        const isXfer = t.type === 'bank_transfer';
+        const sign = isXfer ? '🔄 ' : (isExp ? '-' : '+');
+        const amtColor = isXfer ? '#86198f' : (isExp ? '#dc2626' : '#059669');
+        const cfg = typesConfig[t.type] || { label: t.type, bg: '#f8fafc', color: '#475569', border: '#cbd5e1' };
 
         return `
-          <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-weight: bold; font-size: 11px; color: #383644;">${t.memberName}</span>
-                <span style="font-size: 8px; color: #6b7280; background-color: #f3f4f6; padding: 1px 4px; border-radius: 4px; font-weight: bold;">
-                  ${typesGuj[t.type] || t.type}${t.paymentMode ? ` | ${t.paymentMode}` : ''}
-                </span>
+          <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; box-shadow: 0 2px 6px -1px rgba(0,0,0,0.03); transition: all 0.15s;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+              <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px;">
+                  <span style="font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 4px; background: ${cfg.bg}; color: ${cfg.color}; border: 1px solid ${cfg.border};">
+                    ${cfg.label}
+                  </span>
+                  <span style="font-size: 9px; color: #64748b; font-weight: 600;">
+                    તારીખ: ${t.date || '-'}
+                  </span>
+                  ${t.paymentMode ? `<span style="font-size: 8.5px; color: #334155; background: #f1f5f9; padding: 1px 6px; border-radius: 4px; font-weight: 700; border: 1px solid #e2e8f0;">${t.paymentMode}</span>` : ''}
+                </div>
+                
+                <div style="font-size: 13px; font-weight: 800; color: #1e293b; margin-top: 2px;">
+                  ${t.memberName || 'સોસાયટી વ્યવહાર'}
+                </div>
+
+                ${t.description ? `
+                  <div style="font-size: 10.5px; color: #475569; margin-top: 3px; line-height: 1.4; background: #f8fafc; padding: 5px 8px; border-radius: 6px; border-left: 3px solid ${cfg.color}; font-weight: 500;">
+                    ${t.description}
+                  </div>
+                ` : ''}
               </div>
-              <p style="font-size: 10px; color: #4b5563; margin-top: 4px;">${t.description}</p>
-              <p style="font-size: 8px; color: #9ca3af; margin-top: 2px;">
-                તારીખ: ${new Date(t.date).toLocaleDateString('gu-IN')}
-              </p>
-            </div>
-            <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-              <strong style="color: ${color}; font-size: 13px;">${sign}₹${t.amount.toLocaleString('en-IN')}</strong>
-              ${currentAuthUser && currentAuthUser.role === 'admin' ? `
-                <button onclick="window.deleteTransaction('${t.id}')" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; font-size: 8.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" title="ટ્રાન્ઝેક્શન ડિલીટ કરો">
-                  🗑️ ડિલીટ
-                </button>
-              ` : ''}
+
+              <div style="text-align: right; flex-shrink: 0;">
+                <div style="font-size: 15px; font-weight: 900; color: ${amtColor}; letter-spacing: -0.01em;">
+                  ${sign}₹${Number(t.amount || 0).toLocaleString('en-IN')}
+                </div>
+              </div>
             </div>
           </div>
         `;
@@ -6568,6 +6734,14 @@
       if (select && select.options.length > 0) {
         select.options[0].textContent = `ચૂકવેલ - ₹${shareVal.toLocaleString('en-IN')} પ્રતિ શેર હમણાં જમા કરો (Paid Now - Add to Balance)`;
       }
+      const modeSel = document.getElementById('add-m-payment-mode');
+      if (modeSel) {
+        const depositBal = getSabhasadDepositBalance();
+        const opt = modeSel.querySelector('option[value="સભાસદ ડિપોઝિટ"]');
+        if (opt) {
+          opt.textContent = `સભાસદ ડિપોઝિટમાંથી (From Sabhasad Deposit) [ઉપલબ્ધ: ₹${depositBal.toLocaleString('en-IN')}]`;
+        }
+      }
     }
 
     function updateAddSharePaymentLabels() {
@@ -6575,6 +6749,14 @@
       const select = document.getElementById('add-s-payment');
       if (select && select.options.length > 0) {
         select.options[0].textContent = `ચૂકવેલ - ₹${shareVal.toLocaleString('en-IN')} હમણાં જમા કરો (Paid Now - Add to Balance)`;
+      }
+      const modeSel = document.getElementById('add-s-payment-mode');
+      if (modeSel) {
+        const depositBal = getSabhasadDepositBalance();
+        const opt = modeSel.querySelector('option[value="સભાસદ ડિપોઝિટ"]');
+        if (opt) {
+          opt.textContent = `સભાસદ ડિપોઝિટમાંથી (From Sabhasad Deposit) [ઉપલબ્ધ: ₹${depositBal.toLocaleString('en-IN')}]`;
+        }
       }
     }
 
@@ -6944,6 +7126,16 @@
         const shareVal = getCurrentShareValue();
         const totalShareCost = certInputs.length * shareVal;
         const rawPayMode = document.getElementById('add-m-payment-mode').value;
+        const isFromDeposit = rawPayMode === 'સભાસદ ડિપોઝિટ' || rawPayMode.includes('સભાસદ');
+
+        if (isFromDeposit) {
+          const currentDeposit = getSabhasadDepositBalance();
+          if (currentDeposit < totalShareCost) {
+            alert(`ભૂલ! સભાસદ ડિપોઝિટમાં પૂરતી સિલક નથી!\nજરૂરી રકમ: ₹${totalShareCost.toLocaleString('en-IN')}\nહાલ સભાસદ ડિપોઝિટ ઉપલબ્ધ સિલક: ₹${currentDeposit.toLocaleString('en-IN')}`);
+            return;
+          }
+        }
+
         const payMode = normalizeBankName(rawPayMode);
         transactions.push({
           id: `t-${Date.now()}-share-init`,
@@ -6952,14 +7144,22 @@
           amount: totalShareCost,
           memberName: name,
           paymentMode: payMode,
-          description: `નવી સભ્ય નોંધણી શેર ખરીદી ચુકવણી જમા (કુલ શેર: ${certInputs.length})`
+          description: isFromDeposit 
+            ? `નવી સભ્ય નોંધણી શેર ખરીદી - સભાસદ ડિપોઝિટમાંથી જમા (કુલ શેર: ${certInputs.length})` 
+            : `નવી સભ્ય નોંધણી શેર ખરીદી ચુકવણી જમા (કુલ શેર: ${certInputs.length})`
         });
       }
 
       saveToLocalStorage();
       if (isPaid) {
         const shareVal = getCurrentShareValue();
-        alert(`સભ્ય સફળતાપૂર્વક ઉમેરાયા અને કુલ શેર ચૂકવણી રકમ ₹${(certInputs.length * shareVal).toLocaleString('en-IN')} મુખ્ય સિલકમાં જમા થઈ!`);
+        const rawPayMode = document.getElementById('add-m-payment-mode').value;
+        const isFromDeposit = rawPayMode === 'સભાસદ ડિપોઝિટ' || rawPayMode.includes('સભાસદ');
+        if (isFromDeposit) {
+          alert(`સભ્ય સફળતાપૂર્વક ઉમેરાયા અને શેર રકમ ₹${(certInputs.length * shareVal).toLocaleString('en-IN')} સભાસદ ડિપોઝિટમાંથી બાદ થઈ સભ્ય મૂડીમાં જમા થઈ!`);
+        } else {
+          alert(`સભ્ય સફળતાપૂર્વક ઉમેરાયા અને કુલ શેર ચૂકવણી રકમ ₹${(certInputs.length * shareVal).toLocaleString('en-IN')} મુખ્ય સિલકમાં જમા થઈ!`);
+        }
       } else {
         alert('સભ્ય સફળતાપૂર્વક ઉમેરાયા! શેર ચૂકવણી બાકી હોવાથી શેર પેન્ડિંગ રહેશે.');
       }
@@ -7032,6 +7232,16 @@
         const shareVal = getCurrentShareValue();
         const totalAmount = count * shareVal;
         const rawPayMode = document.getElementById('add-s-payment-mode').value;
+        const isFromDeposit = rawPayMode === 'સભાસદ ડિપોઝિટ' || rawPayMode.includes('સભાસદ');
+
+        if (isFromDeposit) {
+          const currentDeposit = getSabhasadDepositBalance();
+          if (currentDeposit < totalAmount) {
+            alert(`ભૂલ! સભાસદ ડિપોઝિટમાં પૂરતી સિલક નથી!\nજરૂરી રકમ: ₹${totalAmount.toLocaleString('en-IN')}\nહાલ સભાસદ ડિપોઝિટ ઉપલબ્ધ સિલક: ₹${currentDeposit.toLocaleString('en-IN')}`);
+            return;
+          }
+        }
+
         const payMode = normalizeBankName(rawPayMode);
 
         transactions.push({
@@ -7041,9 +7251,9 @@
           amount: totalAmount,
           memberName: m.name,
           paymentMode: payMode,
-          description: count > 1 
-            ? `નવા ${count} શેર ખરીદી ચૂકવણી જમા (${m.name})`
-            : `નવો શેર પ્રમાણપત્ર ${createdShareNumbers[0]} ખરીદી ચૂકવણી જમા`
+          description: isFromDeposit
+            ? (count > 1 ? `નવા ${count} શેર ખરીદી - સભાસદ ડિપોઝિટમાંથી જમા (${m.name})` : `નવો શેર પ્રમાણપત્ર ${createdShareNumbers[0]} - સભાસદ ડિપોઝિટમાંથી જમા`)
+            : (count > 1 ? `નવા ${count} શેર ખરીદી ચૂકવણી જમા (${m.name})` : `નવો શેર પ્રમાણપત્ર ${createdShareNumbers[0]} ખરીદી ચૂકવણી જમા`)
         });
       }
 
@@ -7051,7 +7261,13 @@
       const shareVal = getCurrentShareValue();
       const totalAmount = count * shareVal;
       if (isPaid) {
-        alert(`કુલ ${count} નવા શેર (${createdShareNumbers.join(', ')}) સફળતાપૂર્વક ખરીદ્યા અને ₹${totalAmount.toLocaleString('en-IN')} મુખ્ય સિલકમાં જમા થયા!`);
+        const rawPayMode = document.getElementById('add-s-payment-mode').value;
+        const isFromDeposit = rawPayMode === 'સભાસદ ડિપોઝિટ' || rawPayMode.includes('સભાસદ');
+        if (isFromDeposit) {
+          alert(`કુલ ${count} નવા શેર (${createdShareNumbers.join(', ')}) સફળતાપૂર્વક ખરીદ્યા અને ₹${totalAmount.toLocaleString('en-IN')} સભાસદ ડિપોઝિટમાંથી બાદ થઈ સભ્ય મૂડીમાં જમા થયા!`);
+        } else {
+          alert(`કુલ ${count} નવા શેર (${createdShareNumbers.join(', ')}) સફળતાપૂર્વક ખરીદ્યા અને ₹${totalAmount.toLocaleString('en-IN')} મુખ્ય સિલકમાં જમા થયા!`);
+        }
       } else {
         alert(`કુલ ${count} નવા શેર (${createdShareNumbers.join(', ')}) સફળતાપૂર્વક નોંધાયા! ચૂકવણી બાકી હોવાથી શેર પેન્ડિંગ રહેશે.`);
       }
@@ -7547,6 +7763,12 @@
             badgeBorder = '#a7f3d0';
             typeName = 'અન્ય આવક';
           }
+        } else if (t.type === 'sabhasad_deposit') {
+          cat = 'shares';
+          badgeColor = '#a21caf';
+          badgeBg = '#fdf4ff';
+          badgeBorder = '#f0abfc';
+          typeName = 'સભાસદ ડિપોઝિટ';
         }
 
         items.push({
@@ -7616,10 +7838,7 @@
               </div>
               <div style="display: flex; gap: 4px; margin-top: 4px; justify-content: flex-end;">
                 <button type="button" onclick="openEditLogModal('${it.source}', '${it.id}')" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 4px; cursor: pointer;">
-                  સુધારો
-                </button>
-                <button type="button" onclick="deleteLogEntry('${it.source}', '${it.id}')" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; font-size: 9px; font-weight: 700; padding: 3px 6px; border-radius: 4px; cursor: pointer;">
-                  ✕ કાઢો
+                  ✏️ સુધારો
                 </button>
               </div>
             </div>
@@ -8089,16 +8308,61 @@
       openModal('modal-unified-transaction');
     };
 
+    window.updateTransferBalancesDisplay = function() {
+      const fromSel = document.getElementById('transfer-from-bank');
+      const toSel = document.getElementById('transfer-to-bank');
+      if (!fromSel || !toSel) return;
+
+      const balances = calculateBankBalances();
+      
+      const getBankBal = (b) => {
+        if (b === 'Bank 1' || b.includes('BOI')) return balances.bank1;
+        if (b === 'Bank 2' || b.includes('60149')) return balances.bank2;
+        if (b === 'Bank 3' || b.includes('00839')) return balances.bank3;
+        return balances.bank1;
+      };
+
+      const fromBal = getBankBal(fromSel.value);
+      const toBal = getBankBal(toSel.value);
+
+      const fromLbl = document.getElementById('transfer-from-bal-lbl');
+      if (fromLbl) fromLbl.textContent = `હાલ ઉપલબ્ધ બેલેન્સ: ₹${fromBal.toLocaleString('en-IN')}`;
+
+      const toLbl = document.getElementById('transfer-to-bal-lbl');
+      if (toLbl) toLbl.textContent = `હાલ ઉપલબ્ધ બેલેન્સ: ₹${toBal.toLocaleString('en-IN')}`;
+    };
+
     window.setUnifiedTabType = function(type) {
       unifiedType = type;
+      const incBtn = document.getElementById('unified-type-income-btn');
+      const expBtn = document.getElementById('unified-type-expense-btn');
+      const xferBtn = document.getElementById('unified-type-transfer-btn');
+      const catGroup = document.getElementById('unified-category-group');
+      const xferFields = document.getElementById('unified-transfer-fields');
+      const submitBtn = document.getElementById('btn-submit-unified');
+
       if (type === 'income') {
-        document.getElementById('unified-type-income-btn').classList.add('active');
-        document.getElementById('unified-type-expense-btn').classList.remove('active');
-        document.getElementById('btn-submit-unified').style.backgroundColor = '#059669'; // income theme (emerald green)
-      } else {
-        document.getElementById('unified-type-income-btn').classList.remove('active');
-        document.getElementById('unified-type-expense-btn').classList.add('active');
-        document.getElementById('btn-submit-unified').style.backgroundColor = '#2563eb'; // expense theme (royal blue)
+        if (incBtn) incBtn.classList.add('active');
+        if (expBtn) expBtn.classList.remove('active');
+        if (xferBtn) xferBtn.classList.remove('active');
+        if (catGroup) catGroup.classList.remove('hidden');
+        if (xferFields) xferFields.classList.add('hidden');
+        if (submitBtn) submitBtn.style.backgroundColor = '#059669'; // income theme
+      } else if (type === 'expense') {
+        if (incBtn) incBtn.classList.remove('active');
+        if (expBtn) expBtn.classList.add('active');
+        if (xferBtn) xferBtn.classList.remove('active');
+        if (catGroup) catGroup.classList.remove('hidden');
+        if (xferFields) xferFields.classList.add('hidden');
+        if (submitBtn) submitBtn.style.backgroundColor = '#2563eb'; // expense theme
+      } else if (type === 'transfer') {
+        if (incBtn) incBtn.classList.remove('active');
+        if (expBtn) expBtn.classList.remove('active');
+        if (xferBtn) xferBtn.classList.add('active');
+        if (catGroup) catGroup.classList.add('hidden');
+        if (xferFields) xferFields.classList.remove('hidden');
+        if (submitBtn) submitBtn.style.backgroundColor = '#86198f'; // transfer theme
+        updateTransferBalancesDisplay();
       }
       populateUnifiedSelectors();
       handleUnifiedCategoryChange();
@@ -8111,7 +8375,9 @@
       if (unifiedType === 'income') {
         catSelect.innerHTML = `
           <option value="loan_repayment" selected>લોન EMI હપ્તો (Loan EMI Repayment)</option>
+          <option value="previous_loan_interest">જૂનું / અગાઉનું લોન વ્યાજ જમા (Previous Loan Interest)</option>
           <option value="savings">માસિક બચત ફાળો (Savings Deposit)</option>
+          <option value="sabhasad_deposit">સભાસદ ડિપોઝિટ (Sabhasad Deposit / Advance)</option>
           <option value="donation">દાન સ્વીકાર (Donation Income)</option>
           <option value="bank_interest">બેંક વ્યાજ (Bank Interest)</option>
           <option value="other_general_income">અન્ય આવક / શરૂઆતની સિલક (Other Income / Initial System Balance)</option>
@@ -8236,6 +8502,16 @@
       if (payCard) payCard.classList.remove('hidden');
       document.getElementById('unified-payment-mode').disabled = false;
 
+      if (unifiedType === 'transfer') {
+        memberGroup.classList.add('hidden');
+        if (payCard) payCard.classList.add('hidden');
+        amountLabel.textContent = 'ટ્રાન્સફર કરવાની રકમ (₹) * [Transfer Amount]';
+        document.getElementById('unified-amount-input').placeholder = 'દા.ત. 50000';
+        const notesEl = document.getElementById('unified-notes');
+        if (notesEl) notesEl.placeholder = 'બેંક ટ્રાન્સફર અંગે નોંધ/રીમાર્કસ...';
+        return;
+      }
+
       populateMembersForCategory(category);
 
       if (category === 'loan_repayment') {
@@ -8247,6 +8523,20 @@
         amountLabel.textContent = 'બચત ફાળો રકમ (₹) *';
         document.getElementById('unified-amount-input').placeholder = 'દા.ત. 50';
         document.getElementById('unified-amount-input').value = 50; // default 50 rs
+      } else if (category === 'previous_loan_interest') {
+        memberGroup.classList.add('hidden');
+        amountLabel.textContent = 'જૂનું / અગાઉનું લોન વ્યાજ રકમ (₹) * [Previous Loan Interest]';
+        document.getElementById('unified-amount-input').placeholder = 'દા.ત. 1500';
+        document.getElementById('unified-amount-input').value = '';
+        const notesEl = document.getElementById('unified-notes');
+        if (notesEl) notesEl.placeholder = 'જૂના વ્યાજ બાબતે નોંધ...';
+      } else if (category === 'sabhasad_deposit') {
+        memberGroup.classList.add('hidden');
+        amountLabel.textContent = 'સભાસદ ડિપોઝિટ રકમ (₹) * [Advance Deposit Amount]';
+        document.getElementById('unified-amount-input').placeholder = 'દા.ત. 20000 અથવા 60000';
+        document.getElementById('unified-amount-input').value = '';
+        const notesEl = document.getElementById('unified-notes');
+        if (notesEl) notesEl.placeholder = 'કોના તરફથી ડિપોઝિટ / નોંધ...';
       } else if (category === 'donation') {
         amountLabel.textContent = 'આવક રકમ (₹) *';
         document.getElementById('unified-amount-input').placeholder = 'દા.ત. 500';
@@ -8359,12 +8649,56 @@
     document.getElementById('form-unified-transaction').addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const category = document.getElementById('unified-category-select').value;
-      const memberId = document.getElementById('unified-member-select').value;
       const amountPaise = toPaise(document.getElementById('unified-amount-input').value || 0);
       const amount = fromPaise(amountPaise);
       const date = document.getElementById('unified-date').value;
       const notes = document.getElementById('unified-notes').value.trim();
+
+      if (unifiedType === 'transfer') {
+        const fromBank = document.getElementById('transfer-from-bank').value;
+        const toBank = document.getElementById('transfer-to-bank').value;
+
+        if (amount <= 0) {
+          alert('કૃપા કરીને માન્ય ટ્રાન્સફર રકમ દાખલ કરો!');
+          return;
+        }
+
+        if (fromBank === toBank) {
+          alert('ભૂલ! ક્યાંથી અને ક્યાં બંને એક જ ખાતા ન હોઈ શકે. કૃપા કરીને અલગ અલગ બેંક ખાતા પસંદ કરો.');
+          return;
+        }
+
+        const getBankLabel = (b) => {
+          if (b === 'Bank 1' || b.includes('BOI')) return 'BOI (Bank 1)';
+          if (b === 'Bank 2' || b.includes('60149')) return 'BOB A/c 60149';
+          if (b === 'Bank 3' || b.includes('00839')) return 'BOB A/c 00839';
+          return b;
+        };
+
+        const fromLabel = getBankLabel(fromBank);
+        const toLabel = getBankLabel(toBank);
+
+        transactions.push({
+          id: `t-${Date.now()}-transfer`,
+          date,
+          type: 'bank_transfer',
+          amount,
+          fromBank,
+          toBank,
+          memberName: `સ્વયં બેંક ટ્રાન્સફર`,
+          paymentMode: `${fromLabel} ➔ ${toLabel}`,
+          description: `સ્વયં બેંક ટ્રાન્સફર: [${fromLabel}] માંથી કપાશે ➔ [${toLabel}] માં જમા ${notes ? `| નોંધ: ${notes}` : ''}`
+        });
+
+        alert(`₹${amount.toLocaleString('en-IN')} રકમ સફળતાપૂર્વક ${fromLabel} માંથી ${toLabel} માં સ્થાનાંતરિત થઈ ગઈ!`);
+        saveToLocalStorage();
+        closeModal('modal-unified-transaction');
+        renderAllViews();
+        return;
+      }
+
+      const category = document.getElementById('unified-category-select').value;
+      const memberId = document.getElementById('unified-member-select').value;
 
       const payModeSelect = document.getElementById('unified-payment-mode').value;
       const bankSelect = document.getElementById('unified-bank-select').value;
@@ -8475,7 +8809,7 @@
           transactions.push({
             id: `t-${Date.now()}-ubint`,
             date,
-            type: 'other_income',
+            type: 'bank_interest',
             amount: amount,
             memberName: `બેંક વ્યાજ (${bankName})`,
             paymentMode: finalBankPaymentMode,
@@ -8483,6 +8817,44 @@
           });
 
           alert(`${bankName} માં ફક્ત ₹${amount.toLocaleString('en-IN')} વ્યાજ રકમ સફળતાપૂર્વક જમા થઈ ગઈ છે!`);
+        } else if (category === 'previous_loan_interest') {
+          if (amount <= 0) {
+            alert('કૃપા કરીને માન્ય જૂનું વ્યાજ રકમ દાખલ કરો!');
+            return;
+          }
+
+          const m = members.find(mem => mem.id === memberId);
+          const mName = m ? m.name : (notes || 'જૂનું લોન વ્યાજ');
+
+          transactions.push({
+            id: `t-${Date.now()}-prevint`,
+            date,
+            type: 'interest_payment',
+            amount,
+            memberId: memberId || '',
+            memberName: mName,
+            paymentMode: finalPaymentMode,
+            description: `અગાઉનું / જૂનું લોન વ્યાજ જમા (Previous Loan Interest) [${finalPaymentMode}] ${notes ? `| ${notes}` : ''}`
+          });
+
+          alert(`₹${amount.toLocaleString('en-IN')} અગાઉનું લોન વ્યાજ સફળતાપૂર્વક "વ્યાજ આવક (Loan Int)" માં જમા થઈ ગયું!`);
+        } else if (category === 'sabhasad_deposit') {
+          if (amount <= 0) {
+            alert('કૃપા કરીને માન્ય ડિપોઝિટ રકમ દાખલ કરો!');
+            return;
+          }
+
+          transactions.push({
+            id: `t-${Date.now()}-sabhasad`,
+            date,
+            type: 'sabhasad_deposit',
+            amount,
+            memberName: notes ? `સભાસદ ડિપોઝિટ (${notes})` : 'સભાસદ એડવાન્સ ડિપોઝિટ',
+            paymentMode: finalPaymentMode,
+            description: `સભાસદ એડવાન્સ ડિપોઝિટ જમા [નવા સભ્ય માટે એડવાન્સ પેમેન્ટ] [${finalPaymentMode}] ${notes ? `| ${notes}` : ''}`
+          });
+
+          alert(`₹${amount.toLocaleString('en-IN')} સભાસદ ડિપોઝિટ સફળતાપૂર્વક ${finalPaymentMode} માં જમા થઈ ગઈ!`);
         } else if (category === 'other_general_income') {
           if (amount <= 0) {
             alert('કૃપા કરીને માન્ય રકમ દાખલ કરો!');
@@ -8610,9 +8982,10 @@
       const allLoansInterest = loans.reduce((sum, l) => sum + (l.totalInterestPaid || 0), 0);
       const totalInterestCollected = Math.max(allTxInterest, allEntriesInterest, allLoansInterest);
 
-      const totalDonations = transactions.filter(t => t.type === 'other_income').reduce((sum, t) => sum + t.amount, 0);
-      const totalExpenses = transactions.filter(t => t.type === 'other_expense').reduce((sum, t) => sum + t.amount, 0);
-      const netProfit = totalInterestCollected - totalExpenses;
+      const totalBankInterest = transactions.filter(t => t.type === 'bank_interest').reduce((sum, t) => sum + (t.amount || 0), 0);
+      const totalDonations = transactions.filter(t => t.type === 'other_income' && !t.id.includes('share') && !(t.description || '').includes('શેર')).reduce((sum, t) => sum + (t.amount || 0), 0);
+      const totalExpenses = transactions.filter(t => t.type === 'other_expense').reduce((sum, t) => sum + (t.amount || 0), 0);
+      const netProfit = totalInterestCollected + totalBankInterest - totalExpenses;
 
       // Populate Floating Modal UI
       document.getElementById('report-modal-main-fund').textContent = `₹${trustCash.toLocaleString('en-IN')}`;
@@ -8621,6 +8994,10 @@
       document.getElementById('report-modal-members').textContent = `કુલ સભ્યો: ${activeMembers}`;
       document.getElementById('report-modal-savings').textContent = `₹${totalSavings.toLocaleString('en-IN')}`;
       document.getElementById('report-modal-savings-sub').textContent = `માસિક ₹${curSavPerShare} ના ફાળામાંથી`;
+
+      const sabhasadDepositVal = getSabhasadDepositBalance();
+      const repDepositEl = document.getElementById('report-modal-sabhasad-deposit');
+      if (repDepositEl) repDepositEl.textContent = `₹${sabhasadDepositVal.toLocaleString('en-IN')}`;
 
       document.getElementById('report-modal-rule-shareval').textContent = `₹${curShareVal.toLocaleString('en-IN')}`;
       document.getElementById('report-modal-rule-sav').textContent = `₹${curSavPerShare}/શેર`;
@@ -8633,6 +9010,8 @@
       document.getElementById('report-modal-bank3').textContent = `₹${balances.bank3.toLocaleString('en-IN')}`;
 
       document.getElementById('report-modal-rev-interest').textContent = `₹${totalInterestCollected.toLocaleString('en-IN')}`;
+      const revBankIntEl = document.getElementById('report-modal-rev-bank-interest');
+      if (revBankIntEl) revBankIntEl.textContent = `₹${totalBankInterest.toLocaleString('en-IN')}`;
       document.getElementById('report-modal-rev-donations').textContent = `₹${totalDonations.toLocaleString('en-IN')}`;
       document.getElementById('report-modal-rev-expenses').textContent = `₹${totalExpenses.toLocaleString('en-IN')}`;
       document.getElementById('report-modal-rev-profit').textContent = `₹${netProfit.toLocaleString('en-IN')}`;
@@ -8657,9 +9036,11 @@
       const allLoansInterest = loans.reduce((sum, l) => sum + (l.totalInterestPaid || 0), 0);
       const totalInterestCollected = Math.max(allTxInterest, allEntriesInterest, allLoansInterest);
 
-      const totalDonations = transactions.filter(t => t.type === 'other_income').reduce((sum, t) => sum + t.amount, 0);
-      const totalExpenses = transactions.filter(t => t.type === 'other_expense').reduce((sum, t) => sum + t.amount, 0);
-      const netProfit = totalInterestCollected - totalExpenses;
+      const totalBankInterest = transactions.filter(t => t.type === 'bank_interest').reduce((sum, t) => sum + (t.amount || 0), 0);
+      const totalDonations = transactions.filter(t => t.type === 'other_income' && !t.id.includes('share') && !(t.description || '').includes('શેર')).reduce((sum, t) => sum + (t.amount || 0), 0);
+      const totalExpenses = transactions.filter(t => t.type === 'other_expense').reduce((sum, t) => sum + (t.amount || 0), 0);
+      const netProfit = totalInterestCollected + totalBankInterest - totalExpenses;
+      const sabhasadDepositVal = getSabhasadDepositBalance();
 
       const todayStr = new Date().toLocaleDateString('gu-IN', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
@@ -8759,9 +9140,24 @@
               </div>
             </div>
 
+            <!-- Sabhasad Deposit -->
+            <div class="card">
+              <div class="card-title" style="color: #a21caf;">૪. સભાસદ ડિપોઝિટ (Sabhasad Deposit)</div>
+              <div class="row">
+                <span class="row-lbl">સભાસદ ડિપોઝિટ:</span>
+                <span class="row-val" style="color: #a21caf;">₹${sabhasadDepositVal.toLocaleString('en-IN')}</span>
+              </div>
+              <div class="row">
+                <span class="row-lbl">વિગત:</span>
+                <span class="row-val">નવા સભ્ય એડવાન્સ અનામત</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid">
             <!-- Financial Rules -->
             <div class="card">
-              <div class="card-title" style="color: #c2410c;">૪. સોસાયટી નાણાકીય નિયમો (Financial Rules)</div>
+              <div class="card-title" style="color: #c2410c;">૫. સોસાયટી નાણાકીય નિયમો (Financial Rules)</div>
               <div class="row">
                 <span class="row-lbl">શેર મૂડી:</span>
                 <span class="row-val">₹${curShareVal.toLocaleString('en-IN')}</span>
@@ -8808,6 +9204,10 @@
             <div class="row">
               <span class="row-lbl">વ્યાજ આવક (Loan Interest):</span>
               <span class="row-val" style="color: #2563eb;">₹${totalInterestCollected.toLocaleString('en-IN')}</span>
+            </div>
+            <div class="row">
+              <span class="row-lbl">બેંક વ્યાજ (Bank Interest):</span>
+              <span class="row-val" style="color: #059669;">₹${totalBankInterest.toLocaleString('en-IN')}</span>
             </div>
             <div class="row">
               <span class="row-lbl">કુલ મળેલ દાન (Donations):</span>
@@ -8936,6 +9336,18 @@
             </div>
           </div>
 
+          <!-- Card: Sabhasad Deposit -->
+          <div style="background: #fdf4ff; border: 1px solid #f0abfc; border-radius: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 9.5px; color: #86198f; font-weight: 800; text-transform: uppercase;">સભાસદ ડિપોઝિટ / Sabhasad Deposit</span>
+              <div style="font-size: 8.5px; color: #a21caf;">નવા સભ્ય એડવાન્સ અનામત</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 18px; font-weight: 900; color: #a21caf;" id="report-modal-sabhasad-deposit">₹0</div>
+              <span style="font-size: 8px; color: #a21caf; font-weight: 700;">ઉપલબ્ધ સિલક</span>
+            </div>
+          </div>
+
           <!-- Card 4: Society Financial Rules -->
           <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px;">
             <div style="font-size: 9.5px; font-weight: 800; color: #1e3a8a; text-transform: uppercase; margin-bottom: 6px;">સોસાયટી નાણાકીય નિયમો (Financial Rules)</div>
@@ -8982,22 +9394,28 @@
           <!-- Card 6: Revenue & Profit Analysis -->
           <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px;">
             <div style="font-size: 9.5px; font-weight: 800; color: #334155; text-transform: uppercase; margin-bottom: 6px;">આવક, ખર્ચ અને નફો (Revenue & Profit Analysis)</div>
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; font-size: 9px; margin-bottom: 6px;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 8.5px; margin-bottom: 6px;">
               <div style="background: #f8fafc; padding: 6px; border-radius: 6px; border: 1px solid #f1f5f9;">
-                <span style="color: #64748b; display: block;">વ્યાજ આવક (Loan Interest):</span>
+                <span style="color: #64748b; display: block; font-weight: 700;">વ્યાજ આવક (Loan Int):</span>
                 <strong style="color: #2563eb; font-size: 11px;" id="report-modal-rev-interest">₹0</strong>
               </div>
-              <div style="background: #f8fafc; padding: 6px; border-radius: 6px; border: 1px solid #f1f5f9;">
-                <span style="color: #64748b; display: block;">કુલ મળેલ દાન (Donations):</span>
-                <strong style="color: #059669; font-size: 11px;" id="report-modal-rev-donations">₹0</strong>
+              <div style="background: #f0fdf4; padding: 6px; border-radius: 6px; border: 1px solid #bbf7d0;">
+                <span style="color: #065f46; display: block; font-weight: 700;">બેંક વ્યાજ (Bank Int):</span>
+                <strong style="color: #059669; font-size: 11px;" id="report-modal-rev-bank-interest">₹0</strong>
               </div>
               <div style="background: #f8fafc; padding: 6px; border-radius: 6px; border: 1px solid #f1f5f9;">
-                <span style="color: #64748b; display: block;">સોસાયટી ખર્ચ (Expenses):</span>
+                <span style="color: #64748b; display: block; font-weight: 700;">કુલ દાન (Donations):</span>
+                <strong style="color: #059669; font-size: 11px;" id="report-modal-rev-donations">₹0</strong>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; font-size: 8.5px;">
+              <div style="background: #f8fafc; padding: 6px; border-radius: 6px; border: 1px solid #f1f5f9;">
+                <span style="color: #64748b; display: block; font-weight: 700;">સોસાયટી ખર્ચ (Expenses):</span>
                 <strong style="color: #dc2626; font-size: 11px;" id="report-modal-rev-expenses">₹0</strong>
               </div>
               <div style="background: #ecfdf5; padding: 6px; border-radius: 6px; border: 1px solid #a7f3d0;">
                 <span style="color: #047857; display: block; font-weight: 700;">ચોખ્ખો નફો (Net Profit):</span>
-                <strong style="color: #059669; font-size: 12px; font-weight: 900;" id="report-modal-rev-profit">₹0</strong>
+                <strong style="color: #059669; font-size: 11.5px; font-weight: 900;" id="report-modal-rev-profit">₹0</strong>
               </div>
             </div>
           </div>
