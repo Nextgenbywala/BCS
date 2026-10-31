@@ -3307,11 +3307,11 @@
         const targetM = members.find(m => m.id === targetMemberId);
         if (targetM) cleanP = cleanPhoneNumber(targetM.phone);
       }
-      if (!cleanP) return [];
+      if (!cleanP || cleanP.length < 7) return [];
       return members.filter(m => {
         if (!m || m.status !== 'active') return false;
         const mClean = cleanPhoneNumber(m.phone);
-        return mClean === cleanP || (m.phone && m.phone.includes(cleanP));
+        return mClean === cleanP && mClean.length >= 7;
       });
     }
 
@@ -3378,19 +3378,19 @@
       const rawPhone = (phoneInput ? phoneInput.value : '').trim();
       const cleaned = cleanPhoneNumber(rawPhone);
 
-      if (!cleaned) {
+      if (!cleaned || cleaned.length < 7) {
         if (memberErr) {
-          memberErr.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>કૃપા કરીને તમારો 10 આંકડાનો મોબાઈલ નંબર દાખલ કરો.</span>`;
+          memberErr.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>કૃપા કરીને તમારો ૧૦ આંકડાનો સાચો મોબાઈલ નંબર દાખલ કરો.</span>`;
           memberErr.classList.remove('hidden');
         }
         return;
       }
 
-      // Match against registered members or users
+      // Match strictly against registered members with exact matching phone number
       const allMatches = members.filter(m => {
         if (!m || m.status !== 'active') return false;
         const mClean = cleanPhoneNumber(m.phone);
-        return mClean === cleaned || (m.phone && m.phone.includes(cleaned));
+        return mClean && cleaned && mClean === cleaned && mClean.length >= 7;
       });
 
       if (allMatches.length > 0) {
@@ -4004,45 +4004,52 @@
         disDay = parseInt(parts[2]) || 1;
       }
 
-      const runningBalancePaise = toPaise(loan.currentBalance !== undefined ? loan.currentBalance : loan.principalAmount || 0);
-      const monthlyBasePaise = Math.round(toPaise(loan.principalAmount || 0) * (rate / 100));
-      const dailyRatePaise = monthlyBasePaise / 30;
+      const origPrincipalPaise = toPaise(loan.principalAmount || 0);
 
-      // Issue month days
-      const disDaysInMonth = new Date(disYear, disMonth, 0).getDate();
-      const disAccruedDays = disDaysInMonth - disDay + 1;
-      const disMonthInterestPaise = Math.round(dailyRatePaise * disAccruedDays);
-
-      // Target month
+      // Target month setup
       const targetParts = effectiveMonthCode.split('-');
       const targetYear = parseInt(targetParts[0]);
       const targetMonth = parseInt(targetParts[1]);
-      const targetDaysInMonth = new Date(targetYear, targetMonth, 0).getDate();
+      const targetDaysInMonth = 30; // Rule 2: Following complete months always 30 interest days
 
-      let targetMonthInterestPaise = 0;
-      if (targetYear === disYear && targetMonth === disMonth) {
-        targetMonthInterestPaise = disMonthInterestPaise;
-      } else {
-        targetMonthInterestPaise = Math.round(dailyRatePaise * targetDaysInMonth);
-      }
-
-      // Previous period interest (due now)
+      // 1. Calculate Previous Period Interest (from loan date up to end of previous interest period)
       let prevMonthInterestPaise = 0;
-      const prevDate = new Date(targetYear, targetMonth - 2, 1);
-      const prevYear = prevDate.getFullYear();
-      const prevMonth = prevDate.getMonth() + 1;
-      const prevDaysInMonth = new Date(prevYear, prevMonth, 0).getDate();
+      let prevTotalDays = 0;
+      let curY = disYear;
+      let curM = disMonth;
 
-      if (prevYear > disYear || (prevYear === disYear && prevMonth > disMonth)) {
-        prevMonthInterestPaise = Math.round(dailyRatePaise * prevDaysInMonth);
-      } else if (prevYear === disYear && prevMonth === disMonth) {
-        prevMonthInterestPaise = disMonthInterestPaise;
+      while (curY < targetYear || (curY === targetYear && curM < targetMonth)) {
+        if (curY === disYear && curM === disMonth) {
+          // Rule 1: First loan month - calculate daily from loan date (inclusive) to last day of that month
+          const calDaysInFirstMonth = new Date(disYear, disMonth, 0).getDate();
+          const accruedDaysFirstMonth = Math.max(1, calDaysInFirstMonth - disDay + 1);
+          const firstMonthInt = Math.round((origPrincipalPaise * (rate / 100) / 30) * accruedDaysFirstMonth);
+          prevMonthInterestPaise += firstMonthInt;
+          prevTotalDays += accruedDaysFirstMonth;
+        } else {
+          // Rule 2: Following complete months - exactly 30 interest days
+          const standardMonthInt = Math.round(origPrincipalPaise * (rate / 100));
+          prevMonthInterestPaise += standardMonthInt;
+          prevTotalDays += 30;
+        }
+
+        curM++;
+        if (curM > 12) {
+          curM = 1;
+          curY++;
+        }
       }
 
-      // Track paid history
+      // First month accrued days helper for UI display
+      const disDaysInMonth = new Date(disYear, disMonth, 0).getDate();
+      const disAccruedDays = prevTotalDays > 0 ? prevTotalDays : Math.max(1, disDaysInMonth - disDay + 1);
+
+      // Track repayments and day-by-day principal changes in target month
       let totalInterestPaidPaise = 0;
       let interestDebtPaise = prevMonthInterestPaise;
       let paidEmiLog = [];
+      let balTrackerPaise = origPrincipalPaise;
+      let repayDayInTargetMonth = 30;
 
       transactions.forEach(t => {
         const isMatch = (t.loanId === loan.id) || (t.memberId === loan.memberId && (!t.loanId || t.loanId === loan.id));
@@ -4054,31 +4061,64 @@
           const toPrin = amtP - toInt;
           interestDebtPaise -= toInt;
           totalInterestPaidPaise += toInt;
+          balTrackerPaise -= toPrin;
+
+          const tDateParts = normalizeDateStr(t.date).split('-');
+          if (parseInt(tDateParts[0]) === targetYear && parseInt(tDateParts[1]) === targetMonth) {
+            repayDayInTargetMonth = parseInt(tDateParts[2]) || 30;
+          }
+
+          const stepMonthlyBase = Math.round(balTrackerPaise * (rate / 100));
 
           paidEmiLog.push({
             date: normalizeDateStr(t.date),
             amount: fromPaise(amtP),
             interestPaid: fromPaise(toInt),
             principalPaid: fromPaise(toPrin),
-            remainingBalance: fromPaise(runningBalancePaise),
+            remainingBalance: fromPaise(Math.max(0, balTrackerPaise)),
             monthCode: mCode,
-            nextMonthInterest: fromPaise(targetMonthInterestPaise)
+            nextMonthInterest: fromPaise(stepMonthlyBase)
           });
         }
       });
 
+      const finalBalPaise = Math.max(0, balTrackerPaise);
+      
+      // Calculate current-month interest using actual principal outstanding on each day
+      let targetMonthInterestPaise = 0;
+      if (disYear === targetYear && disMonth === targetMonth) {
+        // Disbursed in the current month itself
+        const calDaysInFirstMonth = new Date(disYear, disMonth, 0).getDate();
+        const accruedDaysFirstMonth = Math.max(1, calDaysInFirstMonth - disDay + 1);
+        targetMonthInterestPaise = Math.round((finalBalPaise * (rate / 100) / 30) * accruedDaysFirstMonth);
+      } else {
+        // Following month - 30 standard days
+        if (repayDayInTargetMonth >= 30) {
+          targetMonthInterestPaise = Math.round(finalBalPaise * (rate / 100));
+        } else {
+          const preDays = Math.min(30, repayDayInTargetMonth);
+          const postDays = Math.max(0, 30 - preDays);
+          const preInterest = (origPrincipalPaise * (rate / 100) / 30) * preDays;
+          const postInterest = (finalBalPaise * (rate / 100) / 30) * postDays;
+          targetMonthInterestPaise = Math.round(preInterest + postInterest);
+        }
+      }
+
+      // Next month estimated interest forecast (Rule 6):
+      const nextMonthInterestPaise = Math.round(finalBalPaise * (rate / 100));
+      const pendingInterestPaise = Math.max(0, interestDebtPaise);
       const isThisMonthEmiPaid = totalInterestPaidPaise >= prevMonthInterestPaise && prevMonthInterestPaise > 0;
 
       return {
         monthlyInterest: fromPaise(targetMonthInterestPaise),
         previousPeriodInterest: fromPaise(prevMonthInterestPaise),
         thisMonthInterestPaid: fromPaise(totalInterestPaidPaise),
-        nextMonthInterest: fromPaise(Math.round(dailyRatePaise * new Date(targetYear, targetMonth + 1, 0).getDate())),
-        pendingInterest: fromPaise(Math.max(0, interestDebtPaise)),
-        unpaidMonths: interestDebtPaise > 0 ? 1 : 0,
+        nextMonthInterest: fromPaise(nextMonthInterestPaise),
+        pendingInterest: fromPaise(pendingInterestPaise),
+        unpaidMonths: pendingInterestPaise > 0 ? 1 : 0,
         isThisMonthEmiPaid,
-        currentBalance: fromPaise(runningBalancePaise),
-        totalDueWithInterest: fromPaise(runningBalancePaise + Math.max(0, interestDebtPaise)),
+        currentBalance: fromPaise(finalBalPaise),
+        totalDueWithInterest: fromPaise(finalBalPaise + pendingInterestPaise),
         paidEmiLog,
         rate,
         currentMonthCode,
@@ -4086,7 +4126,7 @@
         totalPaidCount: paidEmiLog.length,
         disAccruedDays,
         disDaysInMonth,
-        targetDaysInMonth
+        targetDaysInMonth: 30
       };
     }
 
@@ -4199,12 +4239,14 @@
                     ${isGuj ? 'પાછલા સમયગાળાનું વ્યાજ' : 'Previous Period Interest'}
                   </span>
                   <div style="font-size: 9px; color: #3b82f6;">
-                    ${intSched.disAccruedDays} days · ${isGuj ? 'ચૂકવવાપાત્ર હવે' : 'Payable Now'}
+                    ${intSched.disAccruedDays} days · ${intSched.pendingInterest > 0 ? (isGuj ? 'ચૂકવવાપાત્ર હવે' : 'Payable Now') : (isGuj ? 'ચૂકવેલ' : 'Paid')}
                   </div>
                 </div>
                 <div style="text-align: right;">
-                  <strong style="font-size: 13px; color: #1e40af;">₹${intSched.previousPeriodInterest.toLocaleString('en-IN')}</strong>
-                  <div style="font-size: 8.5px; color: #047857; font-weight: 700;">ચૂકવવાપાત્ર (Due)</div>
+                  <strong style="font-size: 13px; color: #1e40af;">₹${intSched.pendingInterest.toLocaleString('en-IN')}</strong>
+                  <div style="font-size: 8.5px; color: ${intSched.pendingInterest > 0 ? '#047857' : '#059669'}; font-weight: 700;">
+                    ${intSched.pendingInterest > 0 ? (isGuj ? 'ચૂકવવાપાત્ર (Due)' : 'Due') : (isGuj ? '✓ જમા થયેલ' : 'Paid')}
+                  </div>
                 </div>
               </div>
 
@@ -4236,7 +4278,7 @@
               <div style="display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #bfdbfe; padding-top: 8px; margin-top: 6px;">
                 <div>
                   <span style="font-size: 11px; font-weight: 800; color: #383644;">કુલ ચૂકવવાપાત્ર રકમ (Total Payable Now):</span>
-                  <div style="font-size: 8.5px; color: #64748b;">Principal ₹${intSched.currentBalance.toLocaleString('en-IN')} + Previous Interest ₹${intSched.previousPeriodInterest.toLocaleString('en-IN')}</div>
+                  <div style="font-size: 8.5px; color: #64748b;">Principal ₹${intSched.currentBalance.toLocaleString('en-IN')} + Previous Interest ₹${intSched.pendingInterest.toLocaleString('en-IN')}</div>
                 </div>
                 <strong style="font-size: 13px; font-weight: 900; color: #b91c1c;">₹${intSched.totalDueWithInterest.toLocaleString('en-IN')}</strong>
               </div>
@@ -4255,6 +4297,21 @@
     window.toggleLoanEmiLog = function() {
       const logView = document.getElementById('loan-emi-log-view');
       const chevron = document.getElementById('loan-log-chevron');
+      if (logView) {
+        logView.classList.toggle('hidden');
+        if (chevron) {
+          if (logView.classList.contains('hidden')) {
+            chevron.style.transform = 'rotate(0deg)';
+          } else {
+            chevron.style.transform = 'rotate(180deg)';
+          }
+        }
+      }
+    };
+
+    window.toggleMemLoanLog = function(loanId) {
+      const logView = document.getElementById(`mem-loan-emi-log-${loanId}`);
+      const chevron = document.getElementById(`mem-loan-chev-${loanId}`);
       if (logView) {
         logView.classList.toggle('hidden');
         if (chevron) {
@@ -4544,6 +4601,53 @@
       renderAllViews();
     }
 
+    // --- MEMBER LOAN DISPLAY BALANCE HELPER ---
+    function calculateMemberLoanDisplayBalance(loan, memberName) {
+      if (!loan) return 0;
+      const currentBal = loan.currentBalance !== undefined ? loan.currentBalance : (loan.principalAmount || 0);
+      if (currentBal <= 0) return 0;
+
+      let disDate = new Date();
+      if (loan.disburseDate) {
+        const parts = normalizeDateStr(loan.disburseDate).split('-');
+        disDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]) || 1);
+      }
+
+      const now = new Date();
+      let totalElapsedMonths = (now.getFullYear() - disDate.getFullYear()) * 12 + (now.getMonth() - disDate.getMonth());
+      if (now.getDate() < disDate.getDate()) totalElapsedMonths -= 1;
+      totalElapsedMonths = Math.max(0, totalElapsedMonths);
+
+      const completed6MonthCycles = Math.floor(totalElapsedMonths / 6);
+      if (completed6MonthCycles === 0) return currentBal;
+
+      const rate = loan.interestRate !== undefined ? loan.interestRate : 1.0;
+      const principal = loan.principalAmount || 0;
+      
+      let totalAccumulatedInt = 0;
+      let curDate = new Date(disDate);
+      
+      // Accrue interest month by month for completed cycles
+      for (let i = 0; i < completed6MonthCycles * 6; i++) {
+        if (i === 0) {
+          // Rule 1: First month partial (accrued from loan date)
+          const calDaysInFirstMonth = new Date(disDate.getFullYear(), disDate.getMonth() + 1, 0).getDate();
+          const accruedDaysFirstMonth = Math.max(1, calDaysInFirstMonth - disDate.getDate() + 1);
+          totalAccumulatedInt += (principal * (rate / 100) / 30) * accruedDaysFirstMonth;
+        } else {
+          // Rule 2: Following months standard 30 interest days
+          totalAccumulatedInt += principal * (rate / 100);
+        }
+        curDate.setMonth(curDate.getMonth() + 1);
+      }
+
+      const intSched = calculateLoanInterestSchedule(loan, memberName);
+      const paidInt = intSched ? (intSched.totalInterestPaid || 0) : 0;
+      const netAccruedInterest = Math.max(0, totalAccumulatedInt - paidInt);
+
+      return currentBal + netAccruedInterest;
+    }
+
     // --- MEMBER PERSONAL DASHBOARD RENDERER ---
     function renderMemberPersonalDashboard(memberId) {
       const m = members.find(mem => mem.id === memberId);
@@ -4555,10 +4659,8 @@
       const totalSavingsPaid = getMemberSavings(m.id);
       const memberActiveLoans = loans.filter(l => l.memberId === m.id && l.status === 'active');
       const isGuj = currentLang === 'guj';
-      const currentLoanBal = memberActiveLoans.reduce((sum, l) => sum + l.currentBalance, 0);
-      const totalMonthlyInterest = memberActiveLoans.reduce((sum, l) => {
-        const sched = calculateLoanInterestSchedule(l, m.name);
-        return sum + (sched ? sched.monthlyInterest : 0);
+      const memberDisplayLoanBal = memberActiveLoans.reduce((sum, l) => {
+        return sum + calculateMemberLoanDisplayBalance(l, m.name);
       }, 0);
 
       // 1. Profile Banner
@@ -4593,22 +4695,12 @@
       const totalSavEl = document.getElementById('mem-dash-total-savings');
       if (totalSavEl) totalSavEl.textContent = `₹${totalSavingsPaid.toLocaleString('en-IN')}`;
       const loanBalEl = document.getElementById('mem-dash-loan-balance');
-      if (loanBalEl) loanBalEl.textContent = `₹${currentLoanBal.toLocaleString('en-IN')}`;
+      if (loanBalEl) loanBalEl.textContent = `₹${memberDisplayLoanBal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
       const loanRateEl = document.getElementById('mem-dash-loan-rate');
       if (loanRateEl) {
-        if (memberActiveLoans.length === 1) {
-          const al = memberActiveLoans[0];
-          const intSched = calculateLoanInterestSchedule(al, m.name);
-          loanRateEl.textContent = isGuj 
-            ? `વ્યાજ: ₹${intSched.monthlyInterest}/માસ (${al.interestRate === 0 ? '0% વ્યાજમુક્ત' : al.interestRate + '%'})` 
-            : `Int: ₹${intSched.monthlyInterest}/mo (${al.interestRate === 0 ? '0% Free' : al.interestRate + '%'})`;
-        } else if (memberActiveLoans.length > 1) {
-          loanRateEl.textContent = isGuj 
-            ? `કુલ વ્યાજ: ₹${totalMonthlyInterest}/માસ (${memberActiveLoans.length} લોન)` 
-            : `Total Int: ₹${totalMonthlyInterest}/mo (${memberActiveLoans.length} Loans)`;
-        } else {
-          loanRateEl.textContent = isGuj ? 'ચાલુ લોન નથી' : 'No active loan';
-        }
+        loanRateEl.textContent = memberActiveLoans.length > 0 
+          ? (isGuj ? 'સક્રિય લોન' : 'Active Loan') 
+          : (isGuj ? 'ચાલુ લોન નથી' : 'No active loan');
       }
 
       // 3. Yearly Savings Tracker
@@ -4667,15 +4759,17 @@
                   ${isGuj ? 'સભ્ય કુલ બાકી લોન રકમ (Total Outstanding)' : 'Total Member Loan Outstanding'}
                 </span>
                 <div style="font-size: 9px; color: #7e22ce; margin-top: 2px;">
-                  ${isGuj ? `આ સભ્ય પાસે અલગ અલગ વ્યાજ દરની કુલ ${memberActiveLoans.length} સક્રિય લોન છે.` : `This member has ${memberActiveLoans.length} active loans with different interest rates.`}
+                  ${isGuj ? `આ સભ્ય પાસે કુલ ${memberActiveLoans.length} સક્રિય લોન છે.` : `This member has ${memberActiveLoans.length} active loans.`}
                 </div>
               </div>
-              <strong style="font-size: 16px; color: #7e22ce; font-weight: 900;">₹${currentLoanBal.toLocaleString('en-IN')}</strong>
+              <strong style="font-size: 16px; color: #7e22ce; font-weight: 900;">₹${memberDisplayLoanBal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
             </div>
           ` : '';
 
           const cardsHtml = memberActiveLoans.map((activeLoan, idx) => {
             const intSched = calculateLoanInterestSchedule(activeLoan, m.name);
+            const memberDisplayBal = calculateMemberLoanDisplayBalance(activeLoan, m.name);
+            const prinPaid = activeLoan.principalAmount - activeLoan.currentBalance;
             const progressPercent = activeLoan.principalAmount > 0 
               ? Math.min(100, Math.round(((activeLoan.principalAmount - activeLoan.currentBalance) / activeLoan.principalAmount) * 100))
               : 0;
@@ -4685,96 +4779,91 @@
             const w1Name = w1Member ? w1Member.name : (activeLoan.witness1 || '-');
             const w2Name = w2Member ? w2Member.name : (activeLoan.witness2 || '-');
 
+            const logId = `mem-loan-emi-log-${activeLoan.id}`;
+            const chevId = `mem-loan-chev-${activeLoan.id}`;
+
             return `
-              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 10px;" class="space-y-3">
+              <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 14px; margin-bottom: 14px;" class="space-y-3">
+                <!-- Header Title -->
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;">
                   <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="font-size: 11px; font-weight: 700; color: #383644;">
-                      ${memberActiveLoans.length > 1 ? `લોન #${idx + 1} (ID: #${activeLoan.id})` : (isGuj ? `લોન નંબર: #${activeLoan.id}` : `Loan ID: #${activeLoan.id}`)}
-                    </span>
-                    <span style="font-size: 9px; font-weight: 700; color: #2563eb; background: #dbeafe; padding: 2px 6px; border-radius: 4px;">
-                      ${activeLoan.interestRate === 0 ? (isGuj ? '0% વ્યાજમુક્ત' : '0% Free') : (isGuj ? `${activeLoan.interestRate}% માસિક વ્યાજ` : `${activeLoan.interestRate}% Monthly`)}
-                    </span>
-                    ${activeLoan.loanType === 'special' ? `<span style="font-size: 8px; font-weight: 700; color: #7e22ce; background: #f3e8ff; padding: 1px 5px; border-radius: 4px;">વિશેષ લોન</span>` : ''}
-                  </div>
-                  <div>
-                    ${intSched && intSched.isThisMonthEmiPaid 
-                      ? `<span style="font-size: 8.5px; font-weight: 700; color: #047857; background: #ecfdf5; padding: 2px 8px; border-radius: 6px; border: 1px solid #a7f3d0; display: inline-flex; align-items: center; gap: 4px;">✓ ${isGuj ? 'ચાલુ માસ EMI જમા' : 'This Month EMI Done'}</span>`
-                      : `<span style="font-size: 8.5px; font-weight: 700; color: #dc2626; background: #fef2f2; padding: 2px 8px; border-radius: 6px; border: 1px solid #fecaca; display: inline-flex; align-items: center; gap: 4px;">${isGuj ? 'ચાલુ માસ EMI બાકી' : 'This Month EMI Pending'}</span>`}
-                  </div>
-                </div>
-
-                <!-- 5 Stat Grid -->
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; text-align: left;">
-                  <div style="background: #ffffff; padding: 8px; border-radius: 6px; border: 1px solid #f1f5f9;">
-                    <span style="font-size: 8px; color: #64748b; display: block;">${isGuj ? 'મંજૂર મૂળ લોન' : 'Sanctioned Loan'}</span>
-                    <strong style="font-size: 11px; color: #383644;">₹${activeLoan.principalAmount.toLocaleString('en-IN')}</strong>
-                  </div>
-                  <div style="background: #ffffff; padding: 8px; border-radius: 6px; border: 1px solid #f1f5f9;">
-                    <span style="font-size: 8px; color: #64748b; display: block;">${isGuj ? 'ભરેલ મુદ્દલ' : 'Principal Paid'}</span>
-                    <strong style="font-size: 11px; color: #059669;">₹${(activeLoan.principalAmount - activeLoan.currentBalance).toLocaleString('en-IN')}</strong>
-                  </div>
-                  <div style="background: #ffffff; padding: 8px; border-radius: 6px; border: 1px solid #f1f5f9;">
-                    <span style="font-size: 8px; color: #64748b; display: block;">${isGuj ? 'આ લોનનું બાકી મુદ્દલ' : 'Principal Balance'}</span>
-                    <strong style="font-size: 11px; color: #dc2626;">₹${activeLoan.currentBalance.toLocaleString('en-IN')}</strong>
-                  </div>
-                  <div style="background: #eff6ff; padding: 8px; border-radius: 6px; border: 1px solid #bfdbfe;">
-                    <span style="font-size: 8px; color: #1e40af; display: block;">${isGuj ? `ચાલુ માસ વ્યાજ (${intSched ? intSched.currentMonthCode : ''})` : `This Month Interest`}</span>
-                    <strong style="font-size: 11px; color: #1d4ed8;">₹${intSched ? (intSched.thisMonthInterestPaid || intSched.monthlyInterest).toLocaleString('en-IN') : 0}</strong>
-                    <span style="font-size: 7px; display: block; color: ${intSched && intSched.isThisMonthEmiPaid ? '#047857' : '#dc2626'}; font-weight: 700;">
-                      ${intSched && intSched.isThisMonthEmiPaid ? '✓ જમા થયેલ' : 'બાકી છે'}
+                    <span style="font-size: 13px; font-weight: 800; color: #1e293b;">
+                      ${activeLoan.loanType === 'special' ? 'વિશેષ લોન (Special Loan)' : 'સામાન્ય લોન (Regular Loan)'} (#l-${activeLoan.id})
                     </span>
                   </div>
-                  <div style="background: #f0f9ff; padding: 8px; border-radius: 6px; border: 1px solid #bae6fd; grid-column: span 2;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                      <span style="font-size: 8.5px; color: #0369a1; font-weight: 600;">${isGuj ? `આવતા માસનું વ્યાજ (${activeLoan.interestRate}% દર):` : `Next Month Interest (${activeLoan.interestRate}%):`}</span>
-                      <strong style="font-size: 11.5px; color: #0284c7;">₹${intSched ? intSched.nextMonthInterest.toLocaleString('en-IN') : 0} / માસ</strong>
-                    </div>
+                </div>
+
+                <!-- Dates & Cheque Info -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10.5px;">
+                  <div style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <span style="color: #64748b; font-size: 9px; display: block;">મંજૂર લોન તારીખ</span>
+                    <strong style="color: #383644;">${activeLoan.disburseDate || '-'}</strong>
+                  </div>
+                  <div style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <span style="color: #64748b; font-size: 9px; display: block;">ચાલુ તારીખ / માસ</span>
+                    <strong style="color: #383644;">${new Date().toLocaleDateString('gu-IN')} (${intSched ? intSched.currentMonthCode : ''})</strong>
                   </div>
                 </div>
 
-                <!-- Overdue Interest & Total Due Alert -->
-                ${intSched && intSched.pendingInterest > 0 ? `
-                  <div style="background: #fff5f5; border: 1.5px solid #fecaca; border-radius: 8px; padding: 10px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                      <span style="font-size: 9.5px; font-weight: 700; color: #b91c1c;">
-                        ⚠️ ${isGuj ? `પાછલા ${intSched.unpaidMonths} મહિનાથી હપ્તો બાકી છે` : `${intSched.unpaidMonths} Months EMI Overdue`}
-                      </span>
-                      <strong style="font-size: 11px; color: #dc2626;">+₹${intSched.pendingInterest.toLocaleString('en-IN')} વ્યાજ</strong>
-                    </div>
-                    <p style="font-size: 8px; color: #991b1b; margin: 3px 0 0 0;">
-                      ${isGuj 
-                        ? `માસિક ₹${intSched.monthlyInterest} લેખે ${intSched.unpaidMonths} માસનું બાકી વ્યાજ લોનમાં ઉમેરાયેલ છે.` 
-                        : `Monthly interest of ₹${intSched.monthlyInterest} for ${intSched.unpaidMonths} months added to outstanding.`}
-                    </p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #fca5a5; padding-top: 6px; margin-top: 6px;">
-                      <span style="font-size: 10px; font-weight: 700; color: #383644;">${isGuj ? 'આ લોન કુલ ચૂકવવાપાત્ર રકમ:' : 'Total Due for this loan:'}</span>
-                      <strong style="font-size: 12px; font-weight: 900; color: #b91c1c;">₹${intSched.totalDueWithInterest.toLocaleString('en-IN')}</strong>
-                    </div>
+                ${activeLoan.chequeNo ? `
+                  <div style="background: #ffffff; padding: 7px 10px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; font-size: 10.5px;">
+                    <span style="color: #64748b; font-size: 9.5px; font-weight: 600;">બેંક ચેક નંબર (Bank Cheque No.):</span>
+                    <span style="font-family: monospace; font-size: 11px; font-weight: 800; color: #1e40af; background: #eff6ff; padding: 2px 7px; border-radius: 4px; border: 1px solid #bfdbfe;">${activeLoan.chequeNo}</span>
                   </div>
-                ` : `
-                  <div style="display: flex; justify-content: space-between; align-items: center; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 6px 10px; font-size: 9px;">
-                    <span style="color: #166534; font-weight: 600;">${isGuj ? 'આ લોન બાકી રકમ:' : 'This Loan Outstanding:'}</span>
-                    <strong style="color: #15803d; font-size: 11px;">₹${intSched ? intSched.totalDueWithInterest.toLocaleString('en-IN') : activeLoan.currentBalance.toLocaleString('en-IN')}</strong>
-                  </div>
-                `}
+                ` : ''}
 
-                <!-- Progress -->
-                <div>
-                  <div style="display: flex; justify-content: space-between; font-size: 8.5px; color: #64748b; margin-bottom: 3px;">
-                    <span>${isGuj ? 'પરત ચુકવણી પ્રગતિ' : 'Repayment Progress'}</span>
-                    <span><b>${progressPercent}%</b> ${isGuj ? 'ચૂકતે' : 'Paid'}</span>
+                <!-- 3 Principal Stat Grid -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center;">
+                  <div style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <span style="font-size: 9px; color: #64748b; display: block;">મૂળ લોન</span>
+                    <strong style="font-size: 11px; color: #383644;">₹${activeLoan.principalAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
                   </div>
-                  <div style="background: #e2e8f0; height: 6px; border-radius: 9999px; overflow: hidden;">
-                    <div style="background: #2563eb; height: 100%; width: ${progressPercent}%; border-radius: 9999px;"></div>
+                  <div style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <span style="font-size: 9px; color: #64748b; display: block;">ભરેલ મુદ્દલ</span>
+                    <strong style="font-size: 11px; color: #059669;">₹${prinPaid.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
+                  </div>
+                  <div style="background: #ffffff; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <span style="font-size: 9px; color: #64748b; display: block;">કુલ લોન રકમ</span>
+                    <strong style="font-size: 11px; color: #dc2626;">₹${memberDisplayBal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
                   </div>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; font-size: 8.5px; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 6px;">
-                  <span>${isGuj ? `મંજૂર તારીખ: ${activeLoan.disburseDate || '-'}` : `Disbursed: ${activeLoan.disburseDate || '-'}`}</span>
-                  <span>${isGuj ? `હેતુ: ${activeLoan.purpose || 'વ્યક્તિગત લોન'}` : `Purpose: ${activeLoan.purpose || 'Personal Loan'}`}</span>
+                <!-- Total Paid EMIs Row -->
+                <div style="background: #ffffff; padding: 8px 12px; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleMemLoanLog('${activeLoan.id}')">
+                  <span style="font-size: 10.5px; font-weight: 700; color: #383644;">કુલ ભરેલા હપ્તા (Total Paid EMIs):</span>
+                  <div style="display: flex; align-items: center; gap: 4px;">
+                    <strong style="font-size: 12px; color: #1e40af;">${intSched ? intSched.totalPaidCount : 0} હપ્તા</strong>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" id="${chevId}"><polyline points="6 9 12 15 18 9"/></svg>
+                  </div>
                 </div>
 
+                <!-- Detailed EMI Log View -->
+                <div id="${logId}" class="hidden" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; margin-top: 4px;">
+                  <div style="overflow-x: auto;">
+                    <table style="width: 100%; min-width: 400px; font-size: 9.5px; border-collapse: collapse;">
+                      <thead style="background: #f8fafc;">
+                        <tr>
+                          <th style="padding: 6px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 9px;">તારીખ</th>
+                          <th style="padding: 6px; text-align: right; border-bottom: 1px solid #e2e8f0; font-size: 9px;">ભરેલ રકમ</th>
+                          <th style="padding: 6px; text-align: right; border-bottom: 1px solid #e2e8f0; font-size: 9px;">મુદ્દલ</th>
+                          <th style="padding: 6px; text-align: right; border-bottom: 1px solid #e2e8f0; font-size: 9px;">બાકી મુદ્દલ</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${intSched && intSched.paidEmiLog && intSched.paidEmiLog.length > 0 ? intSched.paidEmiLog.map(l => `
+                          <tr>
+                            <td style="padding: 6px; border-bottom: 1px solid #f1f5f9; font-size: 9px;">${l.date}</td>
+                            <td style="padding: 6px; text-align: right; border-bottom: 1px solid #f1f5f9; font-weight: 800; font-size: 9.5px; color: #383644;">₹${(l.amount || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            <td style="padding: 6px; text-align: right; border-bottom: 1px solid #f1f5f9; color: #059669; font-size: 9px;">₹${(l.principalPaid || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            <td style="padding: 6px; text-align: right; border-bottom: 1px solid #f1f5f9; color: #dc2626; font-weight: 700; font-size: 9.5px;">₹${(l.remainingBalance || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                          </tr>
+                        `).join('') : '<tr><td colspan="4" style="padding: 10px; text-align: center; color: #64748b;">કોઈ હપ્તો જમા નથી</td></tr>'}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Witness info -->
                 <div style="display: flex; justify-content: space-between; font-size: 8px; color: #334155; background: #ffffff; padding: 6px 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
                   <span><b>${isGuj ? 'સાક્ષી ૧:' : 'Witness 1:'}</b> ${w1Name}</span>
                   <span><b>${isGuj ? 'સાક્ષી ૨:' : 'Witness 2:'}</b> ${w2Name}</span>
