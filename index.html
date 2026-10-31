@@ -768,7 +768,7 @@
             <div style="display: flex; align-items: center; gap: 5px; margin-top: 4px;">
               <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3"/></svg>
               <p style="font-size: 8.5px; color: #64748b; margin: 0;">
-                શીટમાં તમારા ખાતા માટે સેટ કરેલ વ્યક્તિગત પાસવર્ડ (Default: <b>admin@123</b>)
+                
               </p>
             </div>
           </div>
@@ -4704,7 +4704,7 @@
       const isGuj = currentLang === 'guj';
       const memberDisplayLoanBal = memberActiveLoans.reduce((sum, l) => {
         const intSched = calculateLoanInterestSchedule(l, m.name);
-        return sum + toPaise(intSched ? intSched.totalDueWithInterest : l.currentBalance);
+        return sum + (intSched ? intSched.totalDueWithInterest : l.currentBalance);
       }, 0);
 
       // 1. Profile Banner
