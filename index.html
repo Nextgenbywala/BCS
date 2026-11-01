@@ -4536,17 +4536,24 @@
         }
 
         if (type === 'bank_transfer') {
-          const fromB = (t.fromBank || '').toLowerCase();
-          const toB = (t.toBank || '').toLowerCase();
+          let fromB = (t.fromBank || '').toLowerCase();
+          let toB = (t.toBank || '').toLowerCase();
+          if ((!fromB || !toB) && t.paymentMode) {
+            const parts = t.paymentMode.split('➔');
+            if (parts.length === 2) {
+              if (!fromB) fromB = parts[0].trim().toLowerCase();
+              if (!toB) toB = parts[1].trim().toLowerCase();
+            }
+          }
 
           // Deduct from source bank
-          if (fromB.includes('bank 3') || fromB.includes('00839')) b3 -= amtP;
-          else if (fromB.includes('bank 2') || fromB.includes('60149')) b2 -= amtP;
+          if (fromB.includes('bank 3') || fromB.includes('00839') || fromB.includes('bob a/c 00839')) b3 -= amtP;
+          else if (fromB.includes('bank 2') || fromB.includes('60149') || fromB.includes('bob a/c 60149')) b2 -= amtP;
           else if (fromB.includes('bank 1') || fromB.includes('boi')) b1 -= amtP;
 
           // Add to destination bank
-          if (toB.includes('bank 3') || toB.includes('00839')) b3 += amtP;
-          else if (toB.includes('bank 2') || toB.includes('60149')) b2 += amtP;
+          if (toB.includes('bank 3') || toB.includes('00839') || toB.includes('bob a/c 00839')) b3 += amtP;
+          else if (toB.includes('bank 2') || toB.includes('60149') || toB.includes('bob a/c 60149')) b2 += amtP;
           else if (toB.includes('bank 1') || toB.includes('boi')) b1 += amtP;
 
           return;
@@ -6332,7 +6339,7 @@
           const m = members.find(mem => mem.id === l.memberId);
           const mShares = shares.filter(s => s.memberId === l.memberId && s.status === 'active');
           const mSavings = getMemberSavings(l.memberId);
-          const shareValue = mShares.length * 20000;
+          const shareValue = mShares.length * getCurrentShareValue();
           const totalPaid = Math.max(0, l.principalAmount - l.currentBalance);
           const totalInterestPaid = getLoanTotalInterest(l);
           const intSched = calculateLoanInterestSchedule(l, m ? m.name : '', filterTargetMonthCode);
@@ -7808,6 +7815,8 @@
       if (!u) return;
       
       const m = members.find(mem => mem.phone === u.phone || mem.id === u.memberId);
+      const oldName = m ? m.name : u.name;
+      const memberId = m ? m.id : (u.memberId || '');
       
       // Update User object
       const oldPhone = u.phone;
@@ -7822,19 +7831,26 @@
         m.status = newStatus;
       }
       
-      // Update transactions, shares, etc if phone changed? 
-      // Most logic uses memberId/loanId now, but some might use name/phone.
-      // The summary says "source of truth moved from ledger to transactions to prevent double-counting" and "unique IDs used".
-      // But let's be safe and update name references if they are used as keys.
-      if (oldPhone !== newPhone) {
-        // Update other arrays if needed, but the current app architecture seems to rely on IDs or names/phones in some places.
-        // If they use IDs, we are good.
+      // Globally propagate name update across transactions and shares
+      if (oldName && oldName !== newName) {
+        transactions.forEach(t => {
+          if (t.memberName === oldName || (memberId && t.memberId === memberId)) {
+            if (t.memberName && t.memberName !== 'સ્વયં બેંક ટ્રાન્સફર' && t.memberName !== 'દાન / સોસાયટી આવક' && t.memberName !== 'કેડવલી ફંડ જમા') {
+              t.memberName = newName;
+            }
+          }
+        });
+        shares.forEach(s => {
+          if (s.memberId === memberId || s.nameOnShare === oldName) {
+            s.nameOnShare = newName;
+          }
+        });
       }
       
       saveToLocalStorage();
       closeModal('modal-edit-member-full');
       renderAllViews();
-      alert('સભ્યની વિગતો સફળતાપૂર્વક અપડેટ કરવામાં આવી છે!');
+      alert('સભ્યની વિગતો અને તમામ સંબંધિત વ્યવહારો સફળતાપૂર્વક અપડેટ કરવામાં આવ્યા છે!');
     };
 
     // --- ACTIVITY LOGS & ENTRIES CORRECTION CONTROLLER ---
