@@ -1006,7 +1006,7 @@
                 આવક, ખર્ચ અને નફો (Revenue & Profit Analysis)
               </h4>
               
-              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px;">
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px;">
                 <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 6px; border-radius: 8px;">
                   <span style="font-size: 7.5px; color: #64748b; font-weight: 700; display: block;">વ્યાજ આવક (Loan Int)</span>
                   <div style="font-size: 11.5px; font-weight: 800; color: #1e40af; margin-top: 2px;" id="dash-total-interest">₹0</div>
@@ -1018,6 +1018,10 @@
                 <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 6px; border-radius: 8px;">
                   <span style="font-size: 7.5px; color: #64748b; font-weight: 700; display: block;">કુલ દાન (Donations)</span>
                   <div style="font-size: 11.5px; font-weight: 800; color: #059669; margin-top: 2px;" id="dash-total-donations">₹0</div>
+                </div>
+                <div style="background-color: #f5f3ff; border: 1px solid #ddd6fe; padding: 8px 6px; border-radius: 8px;">
+                  <span style="font-size: 7.5px; color: #6b21a8; font-weight: 700; display: block;">કેડવલી ફંડ (Kedavli Fund)</span>
+                  <div style="font-size: 11.5px; font-weight: 800; color: #7c3aed; margin-top: 2px;" id="dash-total-kedavli-fund">₹0</div>
                 </div>
               </div>
 
@@ -1317,6 +1321,7 @@
                 <option value="share_capital">શેર મૂડી જમા (Share Capital)</option>
                 <option value="sabhasad_deposit">સભાસદ ડિપોઝિટ (Sabhasad Deposit)</option>
                 <option value="other_income">દાન / અન્ય આવક (Donation / Other Income)</option>
+                <option value="kedavli_fund">કેડવલી ફંડ (Kedavli Fund)</option>
                 <option value="loan_disbursal">નવી લોન આપેલ (Loan Disbursal)</option>
                 <option value="other_expense">સોસાયટી ખર્ચ ચૂકવણી (Expenses Out)</option>
               </select>
@@ -4547,7 +4552,7 @@
           return;
         }
 
-        const isIncome = (type === 'savings' || type === 'loan_repayment' || type === 'interest_payment' || type === 'bank_interest' || type === 'other_income' || type === 'share_capital' || type === 'sabhasad_deposit');
+        const isIncome = (type === 'savings' || type === 'loan_repayment' || type === 'interest_payment' || type === 'bank_interest' || type === 'other_income' || type === 'share_capital' || type === 'sabhasad_deposit' || type === 'kedavli_fund');
         const isExpense = (type === 'loan_disbursal' || type === 'other_expense');
         
         if (isIncome) {
@@ -5060,6 +5065,10 @@
         .filter(t => t.type === 'other_income' && !t.id.includes('share') && !(t.description || '').includes('શેર'))
         .reduce((sum, t) => sum + t.amount, 0);
 
+      const totalKedavliFund = transactions
+        .filter(t => t.type === 'kedavli_fund')
+        .reduce((sum, t) => sum + t.amount, 0);
+
       const totalExpenses = transactions
         .filter(t => t.type === 'other_expense')
         .reduce((sum, t) => sum + t.amount, 0);
@@ -5080,6 +5089,11 @@
       const totalDonationsEl = document.getElementById('dash-total-donations');
       if (totalDonationsEl) {
         totalDonationsEl.textContent = `₹${totalDonations.toLocaleString('en-IN')}`;
+      }
+
+      const totalKedavliFundEl = document.getElementById('dash-total-kedavli-fund');
+      if (totalKedavliFundEl) {
+        totalKedavliFundEl.textContent = `₹${totalKedavliFund.toLocaleString('en-IN')}`;
       }
 
       const totalExpensesEl = document.getElementById('dash-total-expenses');
@@ -8517,6 +8531,7 @@
           <option value="savings">માસિક બચત ફાળો (Savings Deposit)</option>
           <option value="sabhasad_deposit">સભાસદ ડિપોઝિટ (Sabhasad Deposit / Advance)</option>
           <option value="donation">દાન સ્વીકાર (Donation Income)</option>
+          <option value="kedavli_fund">કેડવલી ફંડ (Kedavli Fund)</option>
           <option value="bank_interest">બેંક વ્યાજ (Bank Interest)</option>
           <option value="other_general_income">અન્ય આવક / શરૂઆતની સિલક (Other Income / Initial System Balance)</option>
         `;
@@ -8676,8 +8691,14 @@
         const notesEl = document.getElementById('unified-notes');
         if (notesEl) notesEl.placeholder = 'કોના તરફથી ડિપોઝિટ / નોંધ...';
       } else if (category === 'donation') {
-        amountLabel.textContent = 'આવક રકમ (₹) *';
+        memberGroup.classList.add('hidden');
+        amountLabel.textContent = 'દાન આવક રકમ (₹) * [Donation Amount]';
         document.getElementById('unified-amount-input').placeholder = 'દા.ત. 500';
+      } else if (category === 'kedavli_fund') {
+        memberGroup.classList.add('hidden');
+        amountLabel.textContent = 'કેડવલી ફંડ રકમ (₹) * [Kedavli Fund Amount]';
+        document.getElementById('unified-amount-input').placeholder = 'દા.ત. 5000';
+        document.getElementById('unified-amount-input').value = '';
       } else if (category === 'bank_interest') {
         memberGroup.classList.add('hidden');
         document.getElementById('unified-bank-interest-fields').classList.remove('hidden');
@@ -8912,23 +8933,39 @@
           alert('બચત ફાળો સફળતાપૂર્વક જમા કરવામાં આવ્યો!');
 
         } else if (category === 'donation') {
-          if (!memberId) {
-            alert('કૃપા કરીને સભ્ય પસંદ કરો!');
+          if (amount <= 0) {
+            alert('કૃપા કરીને માન્ય દાન રકમ દાખલ કરો!');
             return;
           }
-          const m = members.find(mem => mem.id === memberId);
 
           transactions.push({
             id: `t-${Date.now()}-udon`,
             date,
             type: 'other_income',
             amount,
-            memberName: m ? m.name : 'Unknown',
+            memberName: 'દાન / સોસાયટી આવક',
             paymentMode: finalPaymentMode,
-            description: `સોસાયટી આવક / દાન સ્વીકાર ${notes ? `| નોંધ: ${notes}` : ''}`
+            description: `સોસાયટી દાન સ્વીકાર ${notes ? `| નોંધ: ${notes}` : ''}`
           });
 
-          alert('દાન / અન્ય આવક સફળતાપૂર્વક જમા થઈ ગઈ!');
+          alert('દાન / અન્ય આવਕ સફળતાપૂર્વક જમા થઈ ગઈ!');
+        } else if (category === 'kedavli_fund') {
+          if (amount <= 0) {
+            alert('કૃપા કરીને માન્ય રકમ દાખલ કરો!');
+            return;
+          }
+
+          transactions.push({
+            id: `t-${Date.now()}-kedavli`,
+            date,
+            type: 'kedavli_fund',
+            amount,
+            memberName: 'કેડવલી ફંડ જમા',
+            paymentMode: finalPaymentMode,
+            description: `કેડવલી ફંડ આવક જમા [${finalPaymentMode}] ${notes ? `| ${notes}` : ''}`
+          });
+
+          alert(`₹${amount.toLocaleString('en-IN')} કેડવલી ફંડ સફળતાપૂર્વક ${finalPaymentMode} માં જમા થઈ ગયું!`);
         } else if (category === 'bank_interest') {
           const selectedBank = document.getElementById('bank-interest-bank-select').value;
           let bankName = 'BOI (Bank of India)';
