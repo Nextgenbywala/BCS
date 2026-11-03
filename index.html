@@ -1075,19 +1075,19 @@
               <div style="background-color: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 8px;" class="space-y-2">
                 <div class="calc-row">
                   <span data-gu="માસિક સેવિંગ્સ ફાળો:" data-en="Monthly Savings Deposit:">માસિક સેવિંગ્સ ફાળો:</span>
-                  <strong id="calc-monthly">₹100 / મહિને</strong>
+                  <strong id="calc-monthly">-</strong>
                 </div>
                 <div class="calc-row">
-                  <span data-gu="વાર્ષિક બચત (₹૬૦૦ શેરદીઠ):" data-en="Yearly Savings Guarantee (₹600 per share):">વાર્ષિક બચત:</span>
-                  <strong id="calc-yearly">₹1200 / વર્ષે</strong>
+                  <span data-gu="વાર્ષિક બચત:" data-en="Yearly Savings:">વાર્ષિક બચત:</span>
+                  <strong id="calc-yearly">-</strong>
                 </div>
                 <div class="calc-row calc-total">
-                  <span data-gu="મહત્તમ ભલામણ કરેલ લોન લિમિટ (Recommended limit):" data-en="Maximum Recommended Loan Limit:" style="color: #334155;">મહત્તમ ભલામણ કરેલ લોન લિમિટ (Recommended limit):</span>
-                  <strong style="color: #2563eb; font-size: 12px;" id="calc-loan-limit">₹50,000</strong>
+                  <span data-gu="મહત્તમ ભલામણ કરેલ લોન લિમિટ:" data-en="Maximum Recommended Loan Limit:" style="color: #334155;">મહત્તમ ભલામણ કરેલ લોન લિમિટ:</span>
+                  <strong style="color: #2563eb; font-size: 12px;" id="calc-loan-limit">-</strong>
                 </div>
                 <div class="calc-row">
-                  <span data-gu="કુલ શેર મૂડી સુરક્ષિત કિંમત (Asset Value @ ₹20,000/Share):" data-en="Total Share Equity Capital (Asset Value @ ₹20,000/Share):">કુલ શેર મૂડી સુરક્ષિત કિંમત (Asset Value @ ₹20,000/Share):</span>
-                  <strong style="color: #059669;" id="calc-asset-value">₹40,000</strong>
+                  <span data-gu="કુલ શેર મૂડી સુરક્ષિત કિંમત:" data-en="Total Share Equity Capital:">કુલ શેર મૂડી સુરક્ષિત કિંમત:</span>
+                  <strong style="color: #059669;" id="calc-asset-value">-</strong>
                 </div>
               </div>
             </div>
@@ -2100,7 +2100,8 @@
               <strong id="disburse-status-val" style="display:inline-flex; align-items:center; gap:4px; color:#047857;"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="color: #047857;"><polyline points="20 6 9 17 4 12"/></svg> નવો કોરો ખાતો</strong>
             </div>
             <div style="font-size: 8px; color: #d97706; padding-top: 4px; font-weight: bold; line-height: 1.2; display: flex; align-items: flex-start; gap: 4px;">
-              
+              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #d97706; flex-shrink: 0; margin-top: 1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <span>સૂચના: એડમિન ભલામણ કરેલી લિમિટ કરતાં વધારે લોન આપી શકે છે (નિયમ હળવો કર્યો છે).</span>
             </div>
           </div>
 
@@ -5207,6 +5208,9 @@
       document.getElementById('calc-loan-limit').textContent = `₹${(shVal * curLimit).toLocaleString('en-IN')}`;
       document.getElementById('calc-asset-value').textContent = `₹${(shVal * curShareVal).toLocaleString('en-IN')}`;
     }
+
+    // Initialize calculator
+    updateSliderCalculator();
 
     // Members Screen
     function renderMembers() {
