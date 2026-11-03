@@ -1078,7 +1078,7 @@
                   <strong id="calc-monthly">₹100 / મહિને</strong>
                 </div>
                 <div class="calc-row">
-                  <span data-gu="વાર્ષિક બચત (₹૬૦૦ શેરદીઠ):" data-en="Yearly Savings Guarantee (₹600 per share):">વાર્ષિક બચત (₹૬૦૦ શેરદીઠ):</span>
+                  <span data-gu="વાર્ષિક બચત (₹૬૦૦ શેરદીઠ):" data-en="Yearly Savings Guarantee (₹600 per share):">વાર્ષિક બચત:</span>
                   <strong id="calc-yearly">₹1200 / વર્ષે</strong>
                 </div>
                 <div class="calc-row calc-total">
@@ -2410,9 +2410,12 @@
             સૂચના: આ એન્ટ્રી સુધારવાથી સંબંધિત ખાતાઓ અને સિલક આપોઆપ અપડેટ થશે.
           </div>
 
-          <div class="modal-footer" style="padding: 12px 0 0 0; border-top: 1px solid #f3f4f6; display: flex; justify-content: flex-end; gap: 8px;">
-            <button type="button" class="btn btn-secondary" style="width: auto; padding: 8px 16px;" onclick="closeModal('modal-edit-log-entry')">રદ કરો</button>
-            <button type="submit" class="btn btn-gradient" style="width: auto; padding: 8px 24px; background: #2563eb;">સુધારો સેવ કરો</button>
+          <div class="modal-footer" style="padding: 12px 0 0 0; border-top: 1px solid #f3f4f6; display: flex; justify-content: space-between; gap: 8px;">
+            <button type="button" class="btn" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; width: auto; padding: 8px 16px;" onclick="handleDeleteLogEntry()">🗑️ કાઢી નાખો (Delete)</button>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn btn-secondary" style="width: auto; padding: 8px 16px;" onclick="closeModal('modal-edit-log-entry')">રદ કરો</button>
+              <button type="submit" class="btn btn-gradient" style="width: auto; padding: 8px 24px; background: #2563eb;">સુધારો સેવ કરો</button>
+            </div>
           </div>
         </form>
       </div>
@@ -8188,6 +8191,47 @@
       renderAllViews();
       renderLogsView();
       alert('એન્ટ્રી સફળતાપૂર્વક સુધારી લેવામાં આવી છે!');
+    };
+
+    window.handleDeleteLogEntry = function() {
+      const id = document.getElementById('edit-log-id').value;
+      if (!confirm('શું તમે ખરેખર આ એન્ટ્રી કાઢી નાખવા માંગો છો? આનાથી સંબંધિત ખાતાઓ પર થયેલી અસર પણ રદ થશે.')) return;
+
+      const tIndex = transactions.findIndex(item => item.id === id);
+      if (tIndex === -1) {
+        alert('એન્ટ્રી મળી નથી!');
+        return;
+      }
+
+      const t = transactions[tIndex];
+      const amount = t.amount || 0;
+
+      // Reverse financial impacts based on type
+      if (t.type === 'loan_repayment') {
+        let l = loans.find(loan => loan.id === t.loanId);
+        if (l) {
+          l.currentBalance = Math.min(l.principalAmount, l.currentBalance + amount);
+          l.status = 'active';
+        }
+      } else if (t.type === 'loan_disbursal') {
+        let l = loans.find(loan => loan.id === t.loanId);
+        if (l) {
+          l.principalAmount = Math.max(0, l.principalAmount - amount);
+          l.currentBalance = Math.max(0, l.currentBalance - amount);
+        }
+      }
+      
+      // Remove monthly entry if linked
+      monthlyEntries = monthlyEntries.filter(me => me.id !== id.replace('t-', 'me-') && !(me.memberId === t.memberId && me.datePaid === t.date && me.savingsPaid === amount));
+
+      // Remove transaction
+      transactions.splice(tIndex, 1);
+
+      saveToLocalStorage();
+      renderAllViews();
+      renderLogsView();
+      closeModal('modal-edit-log-entry');
+      alert('એન્ટ્રી કાઢી નાખવામાં આવી છે!');
     };
 
     window.deleteLogEntry = function(source, id) {
