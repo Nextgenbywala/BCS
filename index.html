@@ -2846,6 +2846,7 @@
       }
 
       syncUsersWithMembers();
+      syncAllLoanBalancesWithSchedule();
 
       // AUTO-LOAD FROM GOOGLE SHEETS IF LOCAL STORAGE IS EMPTY (New Browser Session / Profile)
       if (members.length === 0 && shares.length === 0 && getActiveSheetUrl()) {
@@ -2917,6 +2918,7 @@
 
     function saveToLocalStorage(skipCloudSync = false) {
       syncUsersWithMembers();
+      syncAllLoanBalancesWithSchedule();
 
       // Store purely temporary in sessionStorage for instant, zero-lag in-tab UI updates
       try {
@@ -3014,6 +3016,7 @@
         updateSyncStatusUI('syncing', 'ગૂગલ શીટમાં બેકગ્રાઉન્ડ સેવ ચાલુ...');
 
         syncUsersWithMembers();
+        syncAllLoanBalancesWithSchedule();
 
         const payload = {
           action: 'syncAll',
@@ -3880,10 +3883,39 @@
         .reduce((sum, entry) => sum + entry.savingsPaid, 0);
     }
 
+    function syncAllLoanBalancesWithSchedule() {
+      if (!Array.isArray(loans)) return;
+      loans.forEach(loan => {
+        if (!loan) return;
+        const borrower = members.find(m => m.id === loan.memberId);
+        const bName = borrower ? borrower.name : '';
+        const intSched = calculateLoanInterestSchedule(loan, bName);
+        if (intSched && typeof intSched.currentBalance === 'number' && !isNaN(intSched.currentBalance)) {
+          loan.currentBalance = Math.round(intSched.currentBalance * 100) / 100;
+          if (loan.currentBalance <= 0) {
+            loan.currentBalance = 0;
+            loan.status = 'repaid';
+          } else if (loan.status === 'repaid' && loan.currentBalance > 0) {
+            loan.status = 'active';
+          }
+        }
+      });
+    }
+
     function getMemberLoanBalance(memberId) {
-      return loans
+      const borrower = members.find(m => m.id === memberId);
+      const bName = borrower ? borrower.name : '';
+      const total = loans
         .filter(loan => loan.memberId === memberId && loan.status === 'active')
-        .reduce((sum, loan) => sum + loan.currentBalance, 0);
+        .reduce((sum, loan) => {
+          const intSched = calculateLoanInterestSchedule(loan, bName);
+          const bal = (intSched && typeof intSched.currentBalance === 'number' && !isNaN(intSched.currentBalance))
+            ? intSched.currentBalance
+            : (Number(loan.currentBalance) || 0);
+          loan.currentBalance = Math.round(bal * 100) / 100;
+          return sum + loan.currentBalance;
+        }, 0);
+      return Math.round(total * 100) / 100;
     }
 
     function getMemberTransactions(memberName) {
@@ -3903,9 +3935,8 @@
       let principal = principalInput;
       let interest = interestInput;
 
-      // PRIORITY FIX: Only cover PENDING + CURRENT month interest. Excess ALWAYS goes to principal.
-      // We no longer pre-pay next month's interest by default to ensure maximum principal reduction.
-      const currentInterestOwed = intSched.pendingInterest + (intSched.isThisMonthEmiPaid ? 0 : mInterest);
+      // PRIORITY FIX: Only cover PENDING interest. Current month interest is payable next month / end of cycle, so normal EMI goes to principal unless past interest is overdue.
+      const currentInterestOwed = intSched.pendingInterest;
       if (interest > currentInterestOwed) {
           const excess = interest - currentInterestOwed;
           interest = currentInterestOwed;
@@ -4546,6 +4577,7 @@
 
     // --- RENDER FUNCTIONS ---
     function renderAllViews() {
+      syncAllLoanBalancesWithSchedule();
       const trustCash = calculateTrustBalance();
       
       // Update header cash badges
@@ -7384,8 +7416,8 @@
         const m = members.find(mem => mem.id === targetLoan.memberId);
         const intSched = calculateLoanInterestSchedule(targetLoan, m ? m.name : '');
 
-        // Auto split: first prioritize total pending/monthly interest, rest is principal
-        const targetInterest = intSched.pendingInterest > 0 ? intSched.pendingInterest : intSched.monthlyInterest;
+        // Auto split: first prioritize pending overdue interest, rest is principal
+        const targetInterest = intSched.pendingInterest > 0 ? intSched.pendingInterest : 0;
         const interestAmt = Math.min(totalVal, targetInterest);
         const principalAmt = Math.max(0, totalVal - interestAmt);
 
@@ -9090,7 +9122,7 @@
           const m = members.find(mem => mem.id === targetLoan.memberId);
           const intSched = calculateLoanInterestSchedule(targetLoan, m ? m.name : '');
           
-          const maxAllowedInterest = intSched.pendingInterest + (intSched.isThisMonthEmiPaid ? 0 : intSched.monthlyInterest) + intSched.nextMonthInterest;
+          const maxAllowedInterest = intSched.pendingInterest;
           
           // Allocation: Interest first (up to maxAllowed), then Principal
           const interestAmtPaise = Math.min(amountPaise, toPaise(maxAllowedInterest));
