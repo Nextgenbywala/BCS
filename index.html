@@ -5262,7 +5262,7 @@
         .filter(t => t.type === 'other_expense')
         .reduce((sum, t) => sum + t.amount, 0);
 
-      const netProfit = totalInterestCollected + totalBankInterest + totalDonations + totalKedavliFund - totalExpenses;
+      const netProfit = totalInterestCollected + totalBankInterest - totalExpenses;
       return { totalInterestCollected, totalBankInterest, totalDonations, totalKedavliFund, totalExpenses, netProfit };
     }
 
