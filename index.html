@@ -1019,9 +1019,22 @@
 
             <!-- Profit, Loss & Revenue Analysis Panel -->
             <div class="card" style="margin-bottom: 12px;">
-              <h4 data-gu="આવક, ખર્ચ અને નફો (Revenue & Profit Analysis)" data-en="Income, Expense & Profit Statement" style="font-size: 10px; font-weight: 700; color: #475569; margin-top: 0; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+              <h4 data-gu="આવક, ખર્ચ અને નફો (Revenue & Profit Analysis)" data-en="Income, Expense & Profit Statement" style="font-size: 10px; font-weight: 700; color: #475569; margin-top: 0; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
                 આવક, ખર્ચ અને નફો (Revenue & Profit Analysis)
               </h4>
+              <div style="margin-bottom: 12px; display: flex; gap: 4px; flex-wrap: wrap;">
+                <select id="revenue-filter" onchange="updateRevenueFilters()" style="font-size: 10px; padding: 3px; border-radius: 4px; border: 1px solid #cbd5e1;">
+                  <option value="all">બધા (All Time)</option>
+                  <option value="today">આજે (Today)</option>
+                  <option value="week">આ અઠવાડિયે (This Week)</option>
+                  <option value="month" selected>આ મહિને (This Month)</option>
+                  <option value="custom">કસ્ટમ (Custom)</option>
+                </select>
+                <div id="custom-date-inputs" class="hidden" style="display: flex; gap: 4px;">
+                  <input type="date" id="revenue-start-date" onchange="updateRevenueFilters()" style="font-size: 10px; padding: 2px;">
+                  <input type="date" id="revenue-end-date" onchange="updateRevenueFilters()" style="font-size: 10px; padding: 2px;">
+                </div>
+              </div>
               
               <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px;">
                 <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 6px; border-radius: 8px;">
@@ -1037,7 +1050,7 @@
                   <div style="font-size: 11.5px; font-weight: 800; color: #059669; margin-top: 2px;" id="dash-total-donations">₹0</div>
                 </div>
                 <div style="background-color: #f5f3ff; border: 1px solid #ddd6fe; padding: 8px 6px; border-radius: 8px;">
-                  <span style="font-size: 7.5px; color: #6b21a8; font-weight: 700; display: block;">કેડવલી ફંડ (Kedavli Fund)</span>
+                  <span style="font-size: 7.5px; color: #6b21a8; font-weight: 700; display: block;">કેળવણી ફંડ (Kedavli Fund)</span>
                   <div style="font-size: 11.5px; font-weight: 800; color: #7c3aed; margin-top: 2px;" id="dash-total-kedavli-fund">₹0</div>
                 </div>
               </div>
@@ -4552,11 +4565,16 @@
     }
 
     function calculateBankBalances() {
-      let bank1 = 0; // BOI (Bank of India)
-      let bank2 = 0; // BOB-60149
-      let bank3 = 0; // BOB-00839
-
       let b1 = 0, b2 = 0, b3 = 0;
+
+      const getBankId = (str) => {
+        const s = (str || '').toLowerCase();
+        if (s.includes('bank 3') || s.includes('00839') || (s.includes('bob') && !s.includes('60149'))) return 'bank3'; // Added explicit check
+        if (s.includes('bank 2') || s.includes('60149') || (s.includes('bob') && s.includes('60149'))) return 'bank2';
+        if (s.includes('bank 1') || s.includes('boi') || s.includes('bank of india')) return 'bank1';
+        return null;
+      };
+
       transactions.forEach(t => {
         const amtP = toPaise(t.amount || 0);
         const type = t.type;
@@ -4568,25 +4586,27 @@
         }
 
         if (type === 'bank_transfer') {
-          let fromB = (t.fromBank || '').toLowerCase();
-          let toB = (t.toBank || '').toLowerCase();
-          if ((!fromB || !toB) && t.paymentMode) {
-            const parts = t.paymentMode.split('➔');
-            if (parts.length === 2) {
-              if (!fromB) fromB = parts[0].trim().toLowerCase();
-              if (!toB) toB = parts[1].trim().toLowerCase();
-            }
+          const desc = (t.description || '').toLowerCase();
+          
+          let fromId = getBankId(t.fromBank);
+          let toId = getBankId(t.toBank);
+
+          if (!fromId && desc.includes('માંથી')) {
+            const parts = desc.split('માંથી');
+            fromId = getBankId(parts[0]);
+          }
+          if (!toId && desc.includes('માં જમા')) {
+            const parts = desc.split('➔');
+            if (parts.length > 1) toId = getBankId(parts[1]);
           }
 
-          // Deduct from source bank
-          if (fromB.includes('bank 3') || fromB.includes('00839') || fromB.includes('bob a/c 00839')) b3 -= amtP;
-          else if (fromB.includes('bank 2') || fromB.includes('60149') || fromB.includes('bob a/c 60149')) b2 -= amtP;
-          else if (fromB.includes('bank 1') || fromB.includes('boi')) b1 -= amtP;
+          if (fromId === 'bank3') b3 -= amtP;
+          else if (fromId === 'bank2') b2 -= amtP;
+          else if (fromId === 'bank1') b1 -= amtP;
 
-          // Add to destination bank
-          if (toB.includes('bank 3') || toB.includes('00839') || toB.includes('bob a/c 00839')) b3 += amtP;
-          else if (toB.includes('bank 2') || toB.includes('60149') || toB.includes('bob a/c 60149')) b2 += amtP;
-          else if (toB.includes('bank 1') || toB.includes('boi')) b1 += amtP;
+          if (toId === 'bank3') b3 += amtP;
+          else if (toId === 'bank2') b2 += amtP;
+          else if (toId === 'bank1') b1 += amtP;
 
           return;
         }
@@ -4594,14 +4614,15 @@
         const isIncome = (type === 'savings' || type === 'loan_repayment' || type === 'interest_payment' || type === 'bank_interest' || type === 'other_income' || type === 'share_capital' || type === 'sabhasad_deposit' || type === 'kedavli_fund');
         const isExpense = (type === 'loan_disbursal' || type === 'other_expense');
         
+        const bankId = getBankId(mode);
         if (isIncome) {
-          if (mode.includes('bank 3') || mode.includes('00839')) b3 += amtP;
-          else if (mode.includes('bank 2') || mode.includes('60149')) b2 += amtP;
-          else b1 += amtP;
+          if (bankId === 'bank3') b3 += amtP;
+          else if (bankId === 'bank2') b2 += amtP;
+          else if (bankId === 'bank1') b1 += amtP;
         } else if (isExpense) {
-          if (mode.includes('bank 3') || mode.includes('00839')) b3 -= amtP;
-          else if (mode.includes('bank 2') || mode.includes('60149')) b2 -= amtP;
-          else b1 -= amtP;
+          if (bankId === 'bank3') b3 -= amtP;
+          else if (bankId === 'bank2') b2 -= amtP;
+          else if (bankId === 'bank1') b1 -= amtP;
         }
       });
       return { 
@@ -5097,7 +5118,8 @@
       }
 
       // Calculate Revenue & Expenses
-      const allTxInterest = transactions
+      const filtered = transactions.filter(t => t.type !== 'bank_transfer' && t.type !== 'loan_disbursal');
+      const allTxInterest = filtered
         .filter(t => t.type === 'interest_payment')
         .reduce((sum, t) => sum + (t.amount || 0), 0);
       const allEntriesInterest = monthlyEntries
@@ -5106,24 +5128,24 @@
         .reduce((sum, l) => sum + (l.totalInterestPaid || 0), 0);
       const totalInterestCollected = Math.max(allTxInterest, allEntriesInterest, allLoansInterest);
 
-      const totalBankInterest = transactions
+      const totalBankInterest = filtered
         .filter(t => t.type === 'bank_interest')
         .reduce((sum, t) => sum + t.amount, 0);
 
-      const totalDonations = transactions
+      const totalDonations = filtered
         .filter(t => t.type === 'other_income' && !t.id.includes('share') && !(t.description || '').includes('શેર'))
         .reduce((sum, t) => sum + t.amount, 0);
 
-      const totalKedavliFund = transactions
+      const totalKedavliFund = filtered
         .filter(t => t.type === 'kedavli_fund')
         .reduce((sum, t) => sum + t.amount, 0);
 
-      const totalExpenses = transactions
+      const totalExpenses = filtered
         .filter(t => t.type === 'other_expense')
         .reduce((sum, t) => sum + t.amount, 0);
 
-      // Net Profit = Collected Interest + Bank Interest - Society Expenses
-      const netProfit = totalInterestCollected + totalBankInterest - totalExpenses;
+      // Net Profit = Collected Interest + Bank Interest + Donations + Kedavli - Society Expenses
+      const netProfit = totalInterestCollected + totalBankInterest + totalDonations + totalKedavliFund - totalExpenses;
 
       const totalInterestEl = document.getElementById('dash-total-interest');
       if (totalInterestEl) {
@@ -5185,6 +5207,69 @@
       // Re-run inline slider calculator logic
       updateSliderCalculator();
     }
+
+    function calculateRevenue(transactionsList) {
+      const filtered = transactionsList.filter(t => t.type !== 'bank_transfer' && t.type !== 'loan_disbursal');
+      const totalInterestCollected = filtered
+        .filter(t => t.type === 'interest_payment')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const totalBankInterest = filtered
+        .filter(t => t.type === 'bank_interest')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const totalDonations = filtered
+        .filter(t => t.type === 'other_income' && (t.description || '').toLowerCase().includes('દાન'))
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const totalKedavliFund = filtered
+        .filter(t => t.type === 'kedavli_fund')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const totalExpenses = filtered
+        .filter(t => t.type === 'other_expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const netProfit = totalInterestCollected + totalBankInterest + totalDonations + totalKedavliFund - totalExpenses;
+      return { totalInterestCollected, totalBankInterest, totalDonations, totalKedavliFund, totalExpenses, netProfit };
+    }
+
+    window.updateRevenueFilters = function() {
+      const filter = document.getElementById('revenue-filter').value;
+      const customInputs = document.getElementById('custom-date-inputs');
+      customInputs.classList.toggle('hidden', filter !== 'custom');
+      
+      let startDate, endDate;
+      const now = new Date();
+      if (filter === 'today') {
+        startDate = endDate = now.toISOString().split('T')[0];
+      } else if (filter === 'week') {
+        const start = new Date(now);
+        start.setDate(now.getDate() - now.getDay());
+        startDate = start.toISOString().split('T')[0];
+        endDate = now.toISOString().split('T')[0];
+      } else if (filter === 'month') {
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+        endDate = now.toISOString().split('T')[0];
+      } else if (filter === 'custom') {
+        startDate = document.getElementById('revenue-start-date').value;
+        endDate = document.getElementById('revenue-end-date').value;
+      }
+
+      let filteredTransactions = transactions;
+      if (filter !== 'all' && startDate && endDate) {
+        filteredTransactions = transactions.filter(t => t.date >= startDate && t.date <= endDate);
+      }
+
+      const { totalInterestCollected, totalBankInterest, totalDonations, totalKedavliFund, totalExpenses, netProfit } = calculateRevenue(filteredTransactions);
+      
+      document.getElementById('dash-total-interest').textContent = `₹${totalInterestCollected.toLocaleString('en-IN')}`;
+      document.getElementById('dash-total-bank-interest').textContent = `₹${totalBankInterest.toLocaleString('en-IN')}`;
+      document.getElementById('dash-total-donations').textContent = `₹${totalDonations.toLocaleString('en-IN')}`;
+      document.getElementById('dash-total-kedavli-fund').textContent = `₹${totalKedavliFund.toLocaleString('en-IN')}`;
+      document.getElementById('dash-total-expenses').textContent = `₹${totalExpenses.toLocaleString('en-IN')}`;
+      document.getElementById('dash-net-profit').textContent = `₹${netProfit.toLocaleString('en-IN')}`;
+    };
 
     // Inline Calculator Slider
     const calcRange = document.getElementById('calc-range');
