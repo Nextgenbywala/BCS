@@ -3216,12 +3216,11 @@
               updated = true;
             }
             if (Array.isArray(d.users)) { users = d.users; }
-            if (d.adminPassword && d.adminPassword !== 'admin@123') {
-              const currentLocalPass = localStorage.getItem(DB_KEYS.adminPass) || 'admin@123';
-              if (currentLocalPass === 'admin@123') {
-                adminPassword = d.adminPassword;
-                localStorage.setItem(DB_KEYS.adminPass, adminPassword);
-              }
+            if (d.adminPassword && d.adminPassword.trim() !== '') {
+              adminPassword = d.adminPassword.trim();
+              localStorage.setItem(DB_KEYS.adminPass, adminPassword);
+              const adminUsr = users.find(u => u.id === 'u-admin' || u.phone === 'admin' || u.role === 'admin');
+              if (adminUsr) adminUsr.password = adminPassword;
             }
             if (d.shareValue && !isNaN(d.shareValue)) {
               const currentLocalShare = parseFloat(localStorage.getItem(DB_KEYS.shareValue) || '20000');
@@ -3307,7 +3306,12 @@
 
       adminPassword = newPass;
       localStorage.setItem(DB_KEYS.adminPass, newPass);
-      if (adminUser) adminUser.password = newPass;
+      users.forEach(u => {
+        if (u.role === 'admin' || u.id === 'u-admin' || u.phone === 'admin') {
+          u.password = newPass;
+        }
+      });
+      syncUsersWithMembers();
       saveToLocalStorage(); // Instantly saves and triggers bg sync to Google Sheets!
 
       closeModal('modal-change-password');
@@ -5176,8 +5180,8 @@
         .filter(t => t.type === 'other_expense')
         .reduce((sum, t) => sum + t.amount, 0);
 
-      // Net Profit = Collected Interest + Bank Interest + Donations + Kedavli - Society Expenses
-      const netProfit = totalInterestCollected + totalBankInterest + totalDonations + totalKedavliFund - totalExpenses;
+      // Net Profit = Collected Interest + Bank Interest - Society Expenses
+      const netProfit = totalInterestCollected + totalBankInterest - totalExpenses;
 
       const totalInterestEl = document.getElementById('dash-total-interest');
       if (totalInterestEl) {
@@ -7958,12 +7962,18 @@
       if (newPass === null) return; // Cancelled
 
       u.password = newPass.trim();
-      if (u.id === 'u-admin' || u.phone === 'admin') {
+      if (u.id === 'u-admin' || u.phone === 'admin' || u.role === 'admin') {
         if (newPass.trim()) {
           adminPassword = newPass.trim();
           localStorage.setItem(DB_KEYS.adminPass, adminPassword);
+          users.forEach(user => {
+            if (user.role === 'admin' || user.id === 'u-admin' || user.phone === 'admin') {
+              user.password = adminPassword;
+            }
+          });
         }
       }
+      syncUsersWithMembers();
       saveToLocalStorage(); // Instantly saves and bg syncs to Google Sheets!
       renderUsersDirectory();
       alert(`${u.name} માટે વ્યક્તિગત પાસવર્ડ સફળતાપૂર્વક અપડેટ થઈ ગયો છે અને ગૂગલ શીટમાં સિન્ક થઈ ગયો છે!`);
