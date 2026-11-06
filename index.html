@@ -4853,15 +4853,39 @@
       const curYearEl = document.getElementById('mem-dash-current-year');
       if (curYearEl) curYearEl.textContent = curYear;
 
-      const targetSavings = mShares.length * 600;
+      const curMonthlySav = getCurrentMonthlySavingsPerShare();
+      const targetSavings = mShares.length * curMonthlySav * 12;
       const paidThisYear = monthlyEntries
         .filter(e => e.memberId === m.id && e.monthCode.startsWith(curYear))
         .reduce((sum, e) => sum + e.savingsPaid, 0);
       const pendingSavings = Math.max(0, targetSavings - paidThisYear);
 
-      const curMonthIdx = new Date().getMonth() + 1; // 1 to 12
-      const expectedUpToNow = mShares.length * 50 * curMonthIdx;
+      // Join date calculation for months count
+      let joinYear = parseInt(curYear);
+      let joinMonth = 1;
+      if (m.createdAt) {
+        const p = normalizeDateStr(m.createdAt).split('-');
+        if (p.length >= 2) {
+          joinYear = parseInt(p[0]);
+          joinMonth = parseInt(p[1]);
+        }
+      }
+      const now = new Date();
+      const currentYearNum = parseInt(curYear);
+      const currentMonthNum = now.getFullYear() === currentYearNum ? (now.getMonth() + 1) : (joinYear < currentYearNum ? 12 : 12);
+      
+      let applicableMonthsCount = 0;
+      if (joinYear < currentYearNum) {
+        applicableMonthsCount = currentMonthNum;
+      } else if (joinYear === currentYearNum) {
+        applicableMonthsCount = Math.max(1, currentMonthNum - joinMonth + 1);
+      } else {
+        applicableMonthsCount = 0;
+      }
+
+      const expectedUpToNow = mShares.length * curMonthlySav * applicableMonthsCount;
       const isMonthPending = paidThisYear < expectedUpToNow;
+      const paidMonths = mShares.length > 0 && curMonthlySav > 0 ? Math.round(paidThisYear / (mShares.length * curMonthlySav)) : 0;
 
       const badgeEl = document.getElementById('mem-dash-savings-status-badge');
       const alertEl = document.getElementById('mem-dash-savings-alert');
@@ -4881,13 +4905,16 @@
       if (alertEl) {
         if (isMonthPending) {
           alertEl.classList.remove('hidden');
+          alertEl.textContent = isGuj 
+            ? `ચાલુ માસ બચત બાકી (Pending ₹${curMonthlySav} × ${mShares.length} શેર = ₹${(curMonthlySav * mShares.length).toLocaleString()}/Month)`
+            : `Monthly savings pending (Pending ₹${curMonthlySav} × ${mShares.length} shares = ₹${(curMonthlySav * mShares.length).toLocaleString()}/Month)`;
         } else {
           alertEl.classList.add('hidden');
         }
       }
 
       const savPaidEl = document.getElementById('mem-dash-savings-paid');
-      if (savPaidEl) savPaidEl.textContent = `₹${paidThisYear.toLocaleString('en-IN')}`;
+      if (savPaidEl) savPaidEl.textContent = `₹${paidThisYear.toLocaleString('en-IN')} (${paidMonths} મહિના ભરેલ)`;
       const savTargetEl = document.getElementById('mem-dash-savings-target');
       if (savTargetEl) savTargetEl.textContent = `₹${targetSavings.toLocaleString('en-IN')}`;
       const savPendingEl = document.getElementById('mem-dash-savings-pending');
@@ -5688,9 +5715,32 @@
 
         const remainingSavings = Math.max(0, targetSavings - paidThisYear);
         
-        // Month-wise check
-        const expectedUpToNow = mShares.length * curSavPerShare * curMonthIdx;
+        // Join date calculation for months count
+        let joinYear = parseInt(selectedYear);
+        let joinMonth = 1;
+        if (m.createdAt) {
+          const p = normalizeDateStr(m.createdAt).split('-');
+          if (p.length >= 2) {
+            joinYear = parseInt(p[0]);
+            joinMonth = parseInt(p[1]);
+          }
+        }
+        const now = new Date();
+        const currentYearNum = parseInt(selectedYear);
+        const currentMonthNum = now.getFullYear() === currentYearNum ? (now.getMonth() + 1) : (joinYear < currentYearNum ? 12 : 12);
+        
+        let applicableMonthsCount = 0;
+        if (joinYear < currentYearNum) {
+          applicableMonthsCount = currentMonthNum;
+        } else if (joinYear === currentYearNum) {
+          applicableMonthsCount = Math.max(1, currentMonthNum - joinMonth + 1);
+        } else {
+          applicableMonthsCount = 0;
+        }
+
+        const expectedUpToNow = mShares.length * curSavPerShare * applicableMonthsCount;
         const isMonthPending = paidThisYear < expectedUpToNow;
+        const paidMonths = mShares.length > 0 && curSavPerShare > 0 ? Math.round(paidThisYear / (mShares.length * curSavPerShare)) : 0;
         const thisMonthPendingAmt = mShares.length * curSavPerShare;
 
         return `
@@ -5714,7 +5764,7 @@
             ${isMonthPending ? `
               <div style="display: flex; justify-content: space-between; align-items: center; background-color: #fef2f2; border: 1px solid #fee2e2; padding: 4px 8px; border-radius: 6px; font-size: 9.5px; color: #dc2626;">
                 <span style="font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-                  <span></span> ચાલુ માસ બચત બાકી (Pending ₹${curSavPerShare} × ${mShares.length} શેર = ₹${thisMonthPendingAmt}/Month)
+                  <span></span> ચાલુ માસ બચત બાકી (Pending ₹${curSavPerShare} × ${mShares.length} શેર = ₹${thisMonthPendingAmt.toLocaleString()}/Month)
                 </span>
                 <span style="font-weight: 800;">બાકી: ₹${thisMonthPendingAmt.toLocaleString()}</span>
               </div>
@@ -5722,7 +5772,7 @@
 
             <!-- Ledger Status details -->
             <div style="display: flex; justify-content: space-between; font-size: 10px; background-color: #f9fafb; padding: 6px 10px; border-radius: 6px; border: 1px solid #f3f4f6;">
-              <span style="color: #4b5563;">ચાલુ વર્ષ બચત ભરેલ: <b>₹${paidThisYear.toLocaleString()}</b></span>
+              <span style="color: #4b5563;">ચાલુ વર્ષ બચત ભરેલ: <b>₹${paidThisYear.toLocaleString()} (${paidMonths} મહિના ભરેલ)</b></span>
               <span style="color: #dc2626;">કુલ બાકી લિમિટ: <b>₹${remainingSavings.toLocaleString()}</b></span>
             </div>
 
