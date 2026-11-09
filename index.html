@@ -3304,13 +3304,24 @@
         return;
       }
 
-      adminPassword = newPass;
-      localStorage.setItem(DB_KEYS.adminPass, newPass);
-      users.forEach(u => {
-        if (u.role === 'admin' || u.id === 'u-admin' || u.phone === 'admin') {
-          u.password = newPass;
+      let targetUser = null;
+      if (currentAuthUser && currentAuthUser.id) {
+        targetUser = users.find(u => u.id === currentAuthUser.id);
+      }
+      if (!targetUser) {
+        targetUser = users.find(u => u.id === 'u-admin' || u.phone === 'admin') || users.find(u => u.role === 'admin');
+      }
+
+      if (targetUser) {
+        targetUser.password = newPass;
+        if (targetUser.id === 'u-admin' || targetUser.phone === 'admin') {
+          adminPassword = newPass;
+          localStorage.setItem(DB_KEYS.adminPass, newPass);
         }
-      });
+      }
+      if (currentAuthUser) {
+        currentAuthUser.password = newPass;
+      }
       syncUsersWithMembers();
       saveToLocalStorage(); // Instantly saves and triggers bg sync to Google Sheets!
 
@@ -8012,15 +8023,10 @@
       if (newPass === null) return; // Cancelled
 
       u.password = newPass.trim();
-      if (u.id === 'u-admin' || u.phone === 'admin' || u.role === 'admin') {
+      if (u.id === 'u-admin' || u.phone === 'admin') {
         if (newPass.trim()) {
           adminPassword = newPass.trim();
           localStorage.setItem(DB_KEYS.adminPass, adminPassword);
-          users.forEach(user => {
-            if (user.role === 'admin' || user.id === 'u-admin' || user.phone === 'admin') {
-              user.password = adminPassword;
-            }
-          });
         }
       }
       syncUsersWithMembers();
