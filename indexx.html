@@ -4629,11 +4629,11 @@
         if (isIncome) {
           if (bankId === 'bank3') b3 += amtP;
           else if (bankId === 'bank2') b2 += amtP;
-          else if (bankId === 'bank1') b1 += amtP;
+          else b1 += amtP;
         } else if (isExpense) {
           if (bankId === 'bank3') b3 -= amtP;
           else if (bankId === 'bank2') b2 -= amtP;
-          else if (bankId === 'bank1') b1 -= amtP;
+          else b1 -= amtP;
         }
       });
       return { 
@@ -5171,7 +5171,7 @@
         .reduce((sum, t) => sum + t.amount, 0);
 
       const totalDonations = filtered
-        .filter(t => t.type === 'other_income' && !t.id.includes('share') && !(t.description || '').includes('શેર'))
+        .filter(t => t.type === 'other_income' && !t.id.includes('share-init'))
         .reduce((sum, t) => sum + t.amount, 0);
 
       const totalKedavliFund = filtered
@@ -5257,7 +5257,7 @@
         .reduce((sum, t) => sum + t.amount, 0);
 
       const totalDonations = filtered
-        .filter(t => t.type === 'other_income' && (t.description || '').toLowerCase().includes('દાન'))
+        .filter(t => t.type === 'other_income' && !t.id.includes('share-init'))
         .reduce((sum, t) => sum + t.amount, 0);
 
       const totalKedavliFund = filtered
