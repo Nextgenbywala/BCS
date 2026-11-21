@@ -2721,6 +2721,7 @@
       setCurrentShareValue(val);
       setCurrentMonthlySavingsPerShare(sav);
       setCurrentLoanLimitPerShare(lim);
+      hasAdminEditedSettings = true;
 
       saveToLocalStorage();
       renderAllViews();
@@ -2955,6 +2956,8 @@
     let isSyncing = false;
     let syncDebounceTimer = null;
     let hasPendingSync = false;
+    let isSettingsSyncedFromDb = false;
+    let hasAdminEditedSettings = false;
 
     function updateSyncStatusUI(status, message) {
       const badge = document.getElementById('cloud-sync-status-badge');
@@ -3018,12 +3021,16 @@
         syncUsersWithMembers();
         syncAllLoanBalancesWithSchedule();
 
+        const hasLocalShare = !!localStorage.getItem(DB_KEYS.shareValue);
+        const hasLocalSav = !!localStorage.getItem(DB_KEYS.monthlySavings);
+        const hasLocalLim = !!localStorage.getItem(DB_KEYS.loanLimitPerShare);
+
         const payload = {
           action: 'syncAll',
           adminPassword: adminPassword,
-          shareValue: getCurrentShareValue(),
-          monthlySavings: getCurrentMonthlySavingsPerShare(),
-          loanLimitPerShare: getCurrentLoanLimitPerShare(),
+          shareValue: (hasAdminEditedSettings || isSettingsSyncedFromDb || hasLocalShare) ? getCurrentShareValue() : undefined,
+          monthlySavings: (hasAdminEditedSettings || isSettingsSyncedFromDb || hasLocalSav) ? getCurrentMonthlySavingsPerShare() : undefined,
+          loanLimitPerShare: (hasAdminEditedSettings || isSettingsSyncedFromDb || hasLocalLim) ? getCurrentLoanLimitPerShare() : undefined,
           data: {
             members: members.map(m => ({
               ...m,
@@ -3093,6 +3100,7 @@
         .then(result => {
           isSyncing = false;
           if (result && result.status === 'success') {
+            hasAdminEditedSettings = false;
             const timeStr = new Date().toLocaleTimeString('gu-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             localStorage.setItem(DB_KEYS.lastSync, `${new Date().toLocaleDateString('gu-IN')} ${timeStr}`);
             updateSyncStatusUI('success', `સિન્ક સફળ: ${timeStr}`);
@@ -3222,22 +3230,28 @@
               const adminUsr = users.find(u => u.id === 'u-admin' || u.phone === 'admin' || u.role === 'admin');
               if (adminUsr) adminUsr.password = adminPassword;
             }
-            if (d.shareValue && !isNaN(d.shareValue)) {
-              const currentLocalShare = parseFloat(localStorage.getItem(DB_KEYS.shareValue) || '20000');
-              if (currentLocalShare === 20000 && Number(d.shareValue) !== 20000) {
-                localStorage.setItem(DB_KEYS.shareValue, String(d.shareValue));
+            isSettingsSyncedFromDb = true;
+            if (!hasAdminEditedSettings) {
+              if (d.shareValue !== undefined && d.shareValue !== null && d.shareValue !== '') {
+                const parsedShare = parseFloat(String(d.shareValue).replace(/,/g, ''));
+                if (!isNaN(parsedShare) && parsedShare > 0) {
+                  localStorage.setItem(DB_KEYS.shareValue, String(parsedShare));
+                  updated = true;
+                }
               }
-            }
-            if (d.monthlySavings && !isNaN(d.monthlySavings)) {
-              const currentLocalSav = parseFloat(localStorage.getItem(DB_KEYS.monthlySavings) || '50');
-              if (currentLocalSav === 50 && Number(d.monthlySavings) !== 50) {
-                localStorage.setItem(DB_KEYS.monthlySavings, String(d.monthlySavings));
+              if (d.monthlySavings !== undefined && d.monthlySavings !== null && d.monthlySavings !== '') {
+                const parsedSav = parseFloat(String(d.monthlySavings).replace(/,/g, ''));
+                if (!isNaN(parsedSav) && parsedSav > 0) {
+                  localStorage.setItem(DB_KEYS.monthlySavings, String(parsedSav));
+                  updated = true;
+                }
               }
-            }
-            if (d.loanLimitPerShare && !isNaN(d.loanLimitPerShare)) {
-              const currentLocalLim = parseFloat(localStorage.getItem(DB_KEYS.loanLimitPerShare) || '25000');
-              if (currentLocalLim === 25000 && Number(d.loanLimitPerShare) !== 25000) {
-                localStorage.setItem(DB_KEYS.loanLimitPerShare, String(d.loanLimitPerShare));
+              if (d.loanLimitPerShare !== undefined && d.loanLimitPerShare !== null && d.loanLimitPerShare !== '') {
+                const parsedLim = parseFloat(String(d.loanLimitPerShare).replace(/,/g, ''));
+                if (!isNaN(parsedLim) && parsedLim > 0) {
+                  localStorage.setItem(DB_KEYS.loanLimitPerShare, String(parsedLim));
+                  updated = true;
+                }
               }
             }
 
@@ -3590,7 +3604,8 @@
       // Allowed!
       if (adminErr) adminErr.classList.add('hidden');
       foundUser.lastLogin = new Date().toISOString();
-      saveToLocalStorage();
+      try { localStorage.setItem(DB_KEYS.users, JSON.stringify(users)); } catch(e) {}
+      saveToLocalStorage(true);
 
       currentAuthUser = {
         role: 'admin',
@@ -3602,6 +3617,9 @@
       localStorage.setItem('bcs_auth_user', JSON.stringify(currentAuthUser));
 
       applyAuth();
+      if (getActiveSheetUrl()) {
+        fetchFromGoogleSheet(true);
+      }
       // Show admin welcome banner for 3 seconds then auto-remove
       window.showAdminWelcomeBanner(currentAuthUser.memberName, currentAuthUser.phone);
     };
@@ -5844,8 +5862,9 @@
       }
 
       const todayStr = new Date().toISOString().split('T')[0];
+      const entryTs = Date.now();
       monthlyEntries.push({
-        id: `me-${Date.now()}`,
+        id: `me-${entryTs}`,
         monthCode: `${selectedYear}-12`,
         memberId: memberId,
         shareId: mShares[0].id,
@@ -5857,10 +5876,11 @@
       });
 
       transactions.push({
-        id: `t-${Date.now()}`,
+        id: `t-${entryTs}`,
         date: todayStr,
         type: 'savings',
         amount: amount,
+        memberId: memberId,
         memberName: m.name,
         paymentMode: payMode,
         description: `${selectedYear} ની વાર્ષિક બચત કલેક્શન [${bankName} માં જમા]`
@@ -5898,8 +5918,9 @@
       }
 
       const todayStr = new Date().toISOString().split('T')[0];
+      const entryTs = Date.now();
       monthlyEntries.push({
-        id: `me-${Date.now()}`,
+        id: `me-${entryTs}`,
         monthCode: `${selectedYear}-12`,
         memberId: memberId,
         shareId: mShares[0].id,
@@ -5911,10 +5932,11 @@
       });
 
       transactions.push({
-        id: `t-${Date.now()}`,
+        id: `t-${entryTs}`,
         date: todayStr,
         type: 'savings',
         amount: amount,
+        memberId: memberId,
         memberName: m.name,
         paymentMode: payMode,
         description: `${selectedYear} ની વાર્ષિક બચત પેટે કસ્ટમ જમા [${bankName}]`
@@ -6403,6 +6425,9 @@
         // Remove the corresponding share certificate from shares array
         shares = shares.filter(s => s.shareNumber !== targetShareNum);
       }
+
+      // Remove linked monthly entry if any (e.g. savings or ledger entry)
+      removeLinkedMonthlyEntryForTx(targetTx);
 
       // Remove from transactions array
       transactions.splice(txIndex, 1);
@@ -8379,6 +8404,87 @@
       alert('એન્ટ્રી સફળતાપૂર્વક સુધારી લેવામાં આવી છે!');
     };
 
+    function removeLinkedMonthlyEntryForTx(t) {
+      if (!t || !Array.isArray(monthlyEntries)) return;
+      const txId = String(t.id || '');
+      const txAmt = Number(t.amount) || 0;
+      const txDate = normalizeDateStr(t.date);
+      const member = members.find(m => m.id === t.memberId) ||
+                     members.find(m => (m.name || '').trim() === (t.memberName || '').trim()) ||
+                     members.find(m => (m.name || '').toLowerCase().trim() === (t.memberName || '').toLowerCase().trim());
+      const resolvedMemberId = t.memberId || (member ? member.id : '');
+
+      if (t.type === 'savings') {
+        const expectedMeId = txId.replace(/^t-/, 'me-');
+        const strippedMeId = expectedMeId.replace(/-usav$/, '').replace(/-sav-(\d+)$/, '-$1');
+
+        // 1. Direct ID match
+        let meIdx = monthlyEntries.findIndex(me => me.id === expectedMeId || me.id === strippedMeId);
+
+        // 2. Timestamp proximity match (within 50ms) + member + amount
+        if (meIdx === -1 && resolvedMemberId) {
+          const tMatch = txId.match(/^t-(\d+)/);
+          if (tMatch) {
+            const tTs = parseInt(tMatch[1], 10);
+            meIdx = monthlyEntries.findIndex(me => {
+              const mMatch = String(me.id || '').match(/^me-(\d+)/);
+              if (!mMatch) return false;
+              const mTs = parseInt(mMatch[1], 10);
+              return Math.abs(tTs - mTs) <= 50 &&
+                     me.memberId === resolvedMemberId &&
+                     Number(me.savingsPaid) === txAmt;
+            });
+          }
+        }
+
+        // 3. Member + datePaid + savingsPaid match
+        if (meIdx === -1 && resolvedMemberId) {
+          meIdx = monthlyEntries.findIndex(me =>
+            me.memberId === resolvedMemberId &&
+            normalizeDateStr(me.datePaid) === txDate &&
+            Number(me.savingsPaid) === txAmt
+          );
+        }
+
+        // 4. Fallback: Member + savingsPaid + year/month code mentioned in description
+        if (meIdx === -1 && resolvedMemberId) {
+          const desc = String(t.description || '');
+          const monthMatch = desc.match(/\b(\d{4}-\d{2})\b/);
+          const yearMatch = desc.match(/\b(20\d{2})\b/);
+          meIdx = monthlyEntries.findIndex(me => {
+            if (me.memberId !== resolvedMemberId || Number(me.savingsPaid) !== txAmt) return false;
+            if (monthMatch && normalizeMonthCode(me.monthCode) === monthMatch[1]) return true;
+            if (yearMatch && (normalizeMonthCode(me.monthCode) === `${yearMatch[1]}-12` || String(me.notes || '').includes(yearMatch[1]))) return true;
+            return false;
+          });
+        }
+
+        if (meIdx !== -1) {
+          const me = monthlyEntries[meIdx];
+          if ((Number(me.interestPaid) || 0) > 0 || (Number(me.principalRepaid) || 0) > 0) {
+            me.savingsPaid = 0;
+          } else {
+            monthlyEntries.splice(meIdx, 1);
+          }
+        }
+        return;
+      }
+
+      // Non-savings: preserve linked entry removal logic
+      const expectedMeId = txId.replace(/^t-/, 'me-');
+      let meIdx = monthlyEntries.findIndex(me => me.id === expectedMeId);
+      if (meIdx === -1 && resolvedMemberId) {
+        meIdx = monthlyEntries.findIndex(me =>
+          me.memberId === resolvedMemberId &&
+          normalizeDateStr(me.datePaid) === txDate &&
+          (Number(me.savingsPaid) === txAmt || ((Number(me.principalRepaid) || 0) + (Number(me.interestPaid) || 0)) === txAmt)
+        );
+      }
+      if (meIdx !== -1) {
+        monthlyEntries.splice(meIdx, 1);
+      }
+    }
+
     window.handleDeleteLogEntry = function() {
       const id = document.getElementById('edit-log-id').value;
       if (!confirm('શું તમે ખરેખર આ એન્ટ્રી કાઢી નાખવા માંગો છો? આનાથી સંબંધિત ખાતાઓ પર થયેલી અસર પણ રદ થશે.')) return;
@@ -8408,7 +8514,7 @@
       }
       
       // Remove monthly entry if linked
-      monthlyEntries = monthlyEntries.filter(me => me.id !== id.replace('t-', 'me-') && !(me.memberId === t.memberId && me.datePaid === t.date && me.savingsPaid === amount));
+      removeLinkedMonthlyEntryForTx(t);
 
       // Remove transaction
       transactions.splice(tIndex, 1);
@@ -8458,13 +8564,7 @@
       }
 
       // --- LOGICAL REVERSE: MONTHLY ENTRIES ---
-      let meIdx = monthlyEntries.findIndex(me => me.id === id.replace('t-', 'me-'));
-      if (meIdx === -1 && member) {
-        meIdx = monthlyEntries.findIndex(me => me.memberId === member.id && me.datePaid === t.date);
-      }
-      if (meIdx !== -1) {
-        monthlyEntries.splice(meIdx, 1);
-      }
+      removeLinkedMonthlyEntryForTx(t);
 
       // Remove transaction
       transactions = transactions.filter(item => item.id !== id);
@@ -9215,11 +9315,13 @@
           const mShares = shares.filter(s => s.memberId === memberId && s.status === 'active');
           const targetShareId = mShares.length > 0 ? mShares[0].id : '';
 
+          const entryTs = Date.now();
           transactions.push({
-            id: `t-${Date.now()}-usav`,
+            id: `t-${entryTs}-usav`,
             date,
             type: 'savings',
             amount,
+            memberId: memberId,
             memberName: m ? m.name : 'Unknown',
             paymentMode: finalPaymentMode,
             description: `માસિક બચત ફાળો જમા ${notes ? `| નોંધ: ${notes}` : ''}`
@@ -9230,7 +9332,7 @@
 
           if (targetShareId) {
             monthlyEntries.push({
-              id: `me-${Date.now()}`,
+              id: `me-${entryTs}`,
               monthCode: currentMonthCode,
               memberId: memberId,
               shareId: targetShareId,
